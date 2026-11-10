@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import ( Blueprint, render_template, request, redirect, url_for, flash, session )
 from werkzeug.security import generate_password_hash
 from app.auth.decorators import role_required
 from app.database.db import db, q
+from app.services.audit import log_action
 
 admin = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -9,17 +10,17 @@ admin = Blueprint("admin", __name__, url_prefix="/admin")
 @role_required("admin")
 def dashboard():
     users = q("SELECT * FROM users ORDER BY id DESC")
-    courses = q("""
+    courses = q(
+        """
         SELECT courses.*, users.full_name AS lecturer_name
         FROM courses
         LEFT JOIN users ON courses.lecturer_id = users.id
         ORDER BY courses.id DESC
-    """)
-
+        """
+    )
     students = q(
         "SELECT * FROM users WHERE role = 'student' ORDER BY full_name"
     )
-
     lecturers = q(
         "SELECT * FROM users WHERE role = 'lecturer' ORDER BY full_name"
     )
@@ -31,6 +32,7 @@ def dashboard():
         students=students,
         lecturers=lecturers
     )
+
 
 @admin.route("/create-user", methods=["POST"])
 @role_required("admin")
@@ -63,7 +65,7 @@ def create_user():
         return redirect(url_for("admin.dashboard"))
 
     try:
-        db().execute(
+        cursor = db().execute(
             """
             INSERT INTO users (username, full_name, password_hash, role)
             VALUES (?, ?, ?, ?)
@@ -71,7 +73,16 @@ def create_user():
             (username, full_name, generate_password_hash(password), role)
         )
 
+        user_id = cursor.lastrowid
         db().commit()
+
+        log_action(
+            action="create_user",
+            entity_type="user",
+            entity_id=user_id,
+            details=f"Created {role} account: {username} ({full_name})."
+        )
+
         flash("Account created successfully.", "success")
 
     except Exception:
@@ -79,6 +90,7 @@ def create_user():
         flash("An error occurred while creating the account.", "danger")
 
     return redirect(url_for("admin.dashboard"))
+
 
 @admin.route("/create-course", methods=["POST"])
 @role_required("admin")
@@ -116,7 +128,7 @@ def create_course():
         return redirect(url_for("admin.dashboard"))
 
     try:
-        db().execute(
+        cursor = db().execute(
             """
             INSERT INTO courses (code, name, lecturer_id)
             VALUES (?, ?, ?)
@@ -124,7 +136,16 @@ def create_course():
             (code, name, int(lecturer_id))
         )
 
+        course_id = cursor.lastrowid
         db().commit()
+
+        log_action(
+            action="create_course",
+            entity_type="course",
+            entity_id=course_id,
+            details=f"Created course {code}: {name}."
+        )
+
         flash("Course created successfully.", "success")
 
     except Exception:
@@ -132,6 +153,7 @@ def create_course():
         flash("An error occurred while creating the course.", "danger")
 
     return redirect(url_for("admin.dashboard"))
+
 
 @admin.route("/enroll", methods=["POST"])
 @role_required("admin")
@@ -147,13 +169,13 @@ def enroll_student():
     course_id = int(course_id)
 
     student = q(
-        "SELECT id FROM users WHERE id = ? AND role = 'student'",
+        "SELECT id, username, full_name FROM users WHERE id = ? AND role = 'student'",
         (student_id,),
         one=True
     )
 
     course = q(
-        "SELECT id FROM courses WHERE id = ?",
+        "SELECT id, code, name FROM courses WHERE id = ?",
         (course_id,),
         one=True
     )
@@ -172,7 +194,7 @@ def enroll_student():
     )
 
     if existing_enrollment:
-        flash("The student is already enrolled in this course.", "warning")
+        flash("Student already enrolled in the course.", "warning")
         return redirect(url_for("admin.dashboard"))
 
     try:
@@ -185,6 +207,14 @@ def enroll_student():
         )
 
         db().commit()
+
+        log_action(
+            action="enroll_student",
+            entity_type="enrollment",
+            entity_id=course_id,
+            details=f"Enrolled {student['full_name']} ({student['username']}) in {course['code']}."
+        )
+
         flash("Student enrolled successfully.", "success")
 
     except Exception:
@@ -193,7 +223,8 @@ def enroll_student():
 
     return redirect(url_for("admin.dashboard"))
 
-# Delete a (lecturer / student / course) details
+
+# Delete a lecturer, student or administrator account
 @admin.route("/delete-user/<int:user_id>", methods=["POST"])
 @role_required("admin")
 def delete_user(user_id):
@@ -209,8 +240,6 @@ def delete_user(user_id):
         return redirect(url_for("admin.dashboard"))
 
     # Prevent an administrator from deleting their own account.
-    from flask import session
-
     if user["id"] == session["user_id"]:
         flash("Current session admin account can't be deleted.", "danger")
         return redirect(url_for("admin.dashboard"))
@@ -234,14 +263,10 @@ def delete_user(user_id):
         )
 
         if assigned_courses:
-            flash(
-                "This lecturer still has assigned courses. Reassign or delete those courses first.",
-                "warning"
-            )
+            flash("The lecturer still has assigned courses. Reassign or delete those courses first.", "warning")
             return redirect(url_for("admin.dashboard"))
 
     try:
-
         if user["role"] == "student":
             connection.execute(
                 "DELETE FROM attendance WHERE student_id = ?",
@@ -260,6 +285,13 @@ def delete_user(user_id):
 
         connection.commit()
 
+        log_action(
+            action="delete_user",
+            entity_type="user",
+            entity_id=user_id,
+            details=f"Deleted {user['role']} account: {user['username']} ({user['full_name']})."
+        )
+
         flash(
             f"Account for {user['full_name']} deleted successfully.",
             "success"
@@ -271,11 +303,13 @@ def delete_user(user_id):
 
     return redirect(url_for("admin.dashboard"))
 
+
 # Delete a course
 @admin.route("/delete-course/<int:course_id>", methods=["POST"])
 @role_required("admin")
 def delete_course(course_id):
     connection = db()
+
     course = q(
         "SELECT id, code, name FROM courses WHERE id = ?",
         (course_id,),
@@ -287,7 +321,6 @@ def delete_course(course_id):
         return redirect(url_for("admin.dashboard"))
 
     try:
-
         # Remove attendance records associated with this course.
         connection.execute(
             "DELETE FROM attendance WHERE course_id = ?",
@@ -308,6 +341,13 @@ def delete_course(course_id):
 
         connection.commit()
 
+        log_action(
+            action="delete_course",
+            entity_type="course",
+            entity_id=course_id,
+            details=f"Deleted course {course['code']}: {course['name']}."
+        )
+
         flash(
             f"Course {course['code']} deleted successfully.",
             "success"
@@ -318,4 +358,3 @@ def delete_course(course_id):
         flash("Unable to delete this course.", "danger")
 
     return redirect(url_for("admin.dashboard"))
-
