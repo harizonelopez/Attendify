@@ -142,7 +142,7 @@ Attendify/
 ### 5. Run the Application
 
 ```bash
- python run.py
+ flask run
 ```
 
 Open your browser and navigate to:
