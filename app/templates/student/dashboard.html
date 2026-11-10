@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block title %}Student Dashboard | Attendify{% endblock %}
+{% block page_heading %}My Attendance{% endblock %}
+
+{% block content %}
+<div class="page-intro mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">Welcome, {{ session.get('full_name') }}</h4>
+        <p class="text-muted mb-0">Track your academic attendance and monitor your progress.</p>
+    </div>
+    <span class="badge bg-success-subtle text-success px-3 py-2">
+        <i class="bi bi-mortarboard me-1"></i> Student Portal
+    </span>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-4">
+        <div class="stat-card">
+            <div class="stat-icon primary">
+                <i class="bi bi-journal-bookmark"></i>
+            </div>
+            <div class="stat-details">
+                <span>Enrolled Courses</span>
+                <h3>{{ courses|length }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-4">
+        <div class="stat-card">
+            <div class="stat-icon success">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+            <div class="stat-details">
+                <span>Sessions Attended</span>
+                <h3>{{ courses|sum(attribute='attended') }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-4">
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <i class="bi bi-calendar3"></i>
+            </div>
+            <div class="stat-details">
+                <span>Recorded Sessions</span>
+                <h3>{{ courses|sum(attribute='total') }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Course Attendance -->
+<div class="content-card mb-4">
+    <div class="card-heading">
+        <div>
+            <h5><i class="bi bi-graph-up me-2"></i>Course Attendance Overview</h5>
+            <p>Monitor your attendance performance across enrolled courses.</p>
+        </div>
+    </div>
+    {% if courses %}
+    <div class="row g-4">
+        {% for course in courses %}
+        <div class="col-lg-6">
+            <div class="student-course-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="course-code">{{ course.code }}</span>
+                        <h5 class="fw-bold mt-2 mb-1">{{ course.name }}</h5>
+                        <small class="text-muted">
+                            <i class="bi bi-person-workspace me-1"></i>
+                             {{ course.lecturer_name or 'Lecturer not assigned' }}
+                        </small>
+                    </div>
+
+                    {% if course.total == 0 %}
+                        <span class="badge bg-secondary-subtle text-secondary">
+                            No Records
+                        </span>
+                    {% elif course.percentage >= threshold %}
+                        <span class="badge bg-success-subtle text-success">
+                            Good Standing
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger-subtle text-danger">
+                            At Risk
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="attendance-performance">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Attendance Rate</span>
+                        <strong>{{ course.percentage }}%</strong>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar
+                            {% if course.percentage >= threshold %}bg-success
+                            {% elif course.percentage >= (threshold * 0.67) %}bg-warning
+                            {% else %}bg-danger{% endif %}"
+                             role="progressbar"
+                             aria-valuenow="{{ course.percentage }}"
+                             aria-valuemin="0"
+                             aria-valuemax="100"
+                             style="width: {{ course.percentage }}%">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-attendance-details mt-3">
+                    <div>
+                        <small>Attended</small>
+                        <strong>{{ course.attended }}</strong>
+                    </div>
+                    <div>
+                        <small>Absent</small>
+                        <strong>{{ course.total - course.attended }}</strong>
+                    </div>
+                    <div>
+                        <small>Total Sessions</small>
+                        <strong>{{ course.total }}</strong>
+                    </div>
+                </div>
+                {% if course.risk_analysis %}
+                <div class="attendance-insight mt-3">
+                    <i class="bi bi-lightbulb me-2"></i>
+                    <span>
+                        {{ course.risk_analysis.status }}.
+                         Projected attendance:
+                        {{ course.risk_analysis.projected_percentage }}%.
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <i class="bi bi-journal-x"></i>
+        </div>
+        <h5>No Enrolled Courses</h5>
+        <p>
+            You are not currently enrolled in any courses.
+            Please contact your administrator.
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Attendance History -->
+<div class="content-card">
+    <div class="card-heading">
+        <div>
+            <h5><i class="bi bi-clock-history me-2"></i>Attendance History</h5>
+            <p>Review your previously recorded attendance sessions.</p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Course</th>
+                    <th>Course Code</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for record in history %}
+                <tr>
+                    <td class="fw-semibold">{{ record.course_name }}</td>
+                    <td>{{ record.course_code }}</td>
+                    <td>{{ record.date }}</td>
+                    <td>
+                        {% if record.present %}
+                            <span class="badge bg-success-subtle text-success">
+                                <i class="bi bi-check-circle me-1"></i>Present
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger">
+                                <i class="bi bi-x-circle me-1"></i>Absent
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center py-5 text-muted">
+                        <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                         No attendance history available yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

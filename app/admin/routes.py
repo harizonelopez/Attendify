@@ -1,0 +1,321 @@
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from werkzeug.security import generate_password_hash
+from app.auth.decorators import role_required
+from app.database.db import db, q
+
+admin = Blueprint("admin", __name__, url_prefix="/admin")
+
+@admin.route("/")
+@role_required("admin")
+def dashboard():
+    users = q("SELECT * FROM users ORDER BY id DESC")
+    courses = q("""
+        SELECT courses.*, users.full_name AS lecturer_name
+        FROM courses
+        LEFT JOIN users ON courses.lecturer_id = users.id
+        ORDER BY courses.id DESC
+    """)
+
+    students = q(
+        "SELECT * FROM users WHERE role = 'student' ORDER BY full_name"
+    )
+
+    lecturers = q(
+        "SELECT * FROM users WHERE role = 'lecturer' ORDER BY full_name"
+    )
+
+    return render_template(
+        "admin/dashboard.html",
+        users=users,
+        courses=courses,
+        students=students,
+        lecturers=lecturers
+    )
+
+@admin.route("/create-user", methods=["POST"])
+@role_required("admin")
+def create_user():
+    username = request.form.get("username", "").strip()
+    full_name = request.form.get("full_name", "").strip()
+    password = request.form.get("password", "")
+    role = request.form.get("role", "").strip()
+
+    if not username or not full_name or not password:
+        flash("All account fields are required.", "danger")
+        return redirect(url_for("admin.dashboard"))
+
+    if len(password) < 8:
+        flash("Password must contain at least 8 characters.", "warning")
+        return redirect(url_for("admin.dashboard"))
+
+    if role not in ("admin", "lecturer", "student"):
+        flash("Invalid account role.", "danger")
+        return redirect(url_for("admin.dashboard"))
+
+    existing_user = q(
+        "SELECT id FROM users WHERE username = ?",
+        (username,),
+        one=True
+    )
+
+    if existing_user:
+        flash("That username is already in use.", "warning")
+        return redirect(url_for("admin.dashboard"))
+
+    try:
+        db().execute(
+            """
+            INSERT INTO users (username, full_name, password_hash, role)
+            VALUES (?, ?, ?, ?)
+            """,
+            (username, full_name, generate_password_hash(password), role)
+        )
+
+        db().commit()
+        flash("Account created successfully.", "success")
+
+    except Exception:
+        db().rollback()
+        flash("An error occurred while creating the account.", "danger")
+
+    return redirect(url_for("admin.dashboard"))
+
+@admin.route("/create-course", methods=["POST"])
+@role_required("admin")
+def create_course():
+    code = request.form.get("code", "").strip().upper()
+    name = request.form.get("name", "").strip()
+    lecturer_id = request.form.get("lecturer_id", "").strip()
+
+    if not code or not name or not lecturer_id:
+        flash("All course fields are required.", "danger")
+        return redirect(url_for("admin.dashboard"))
+
+    if not lecturer_id.isdigit():
+        flash("Invalid lecturer selection.", "danger")
+        return redirect(url_for("admin.dashboard"))
+
+    lecturer = q(
+        "SELECT id FROM users WHERE id = ? AND role = 'lecturer'",
+        (int(lecturer_id),),
+        one=True
+    )
+
+    if not lecturer:
+        flash("Please select a valid lecturer.", "danger")
+        return redirect(url_for("admin.dashboard"))
+
+    existing_course = q(
+        "SELECT id FROM courses WHERE code = ?",
+        (code,),
+        one=True
+    )
+
+    if existing_course:
+        flash("A course with that code already exists.", "warning")
+        return redirect(url_for("admin.dashboard"))
+
+    try:
+        db().execute(
+            """
+            INSERT INTO courses (code, name, lecturer_id)
+            VALUES (?, ?, ?)
+            """,
+            (code, name, int(lecturer_id))
+        )
+
+        db().commit()
+        flash("Course created successfully.", "success")
+
+    except Exception:
+        db().rollback()
+        flash("An error occurred while creating the course.", "danger")
+
+    return redirect(url_for("admin.dashboard"))
+
+@admin.route("/enroll", methods=["POST"])
+@role_required("admin")
+def enroll_student():
+    student_id = request.form.get("student_id", "").strip()
+    course_id = request.form.get("course_id", "").strip()
+
+    if not student_id.isdigit() or not course_id.isdigit():
+        flash("Invalid student or course selection.", "danger")
+        return redirect(url_for("admin.dashboard"))
+
+    student_id = int(student_id)
+    course_id = int(course_id)
+
+    student = q(
+        "SELECT id FROM users WHERE id = ? AND role = 'student'",
+        (student_id,),
+        one=True
+    )
+
+    course = q(
+        "SELECT id FROM courses WHERE id = ?",
+        (course_id,),
+        one=True
+    )
+
+    if not student or not course:
+        flash("Invalid student or course selection.", "danger")
+        return redirect(url_for("admin.dashboard"))
+
+    existing_enrollment = q(
+        """
+        SELECT student_id FROM enrollments
+        WHERE student_id = ? AND course_id = ?
+        """,
+        (student_id, course_id),
+        one=True
+    )
+
+    if existing_enrollment:
+        flash("The student is already enrolled in this course.", "warning")
+        return redirect(url_for("admin.dashboard"))
+
+    try:
+        db().execute(
+            """
+            INSERT INTO enrollments (student_id, course_id)
+            VALUES (?, ?)
+            """,
+            (student_id, course_id)
+        )
+
+        db().commit()
+        flash("Student enrolled successfully.", "success")
+
+    except Exception:
+        db().rollback()
+        flash("An error occurred while enrolling the student.", "danger")
+
+    return redirect(url_for("admin.dashboard"))
+
+# Delete a (lecturer / student / course) details
+@admin.route("/delete-user/<int:user_id>", methods=["POST"])
+@role_required("admin")
+def delete_user(user_id):
+    connection = db()
+    user = q(
+        "SELECT id, username, full_name, role FROM users WHERE id = ?",
+        (user_id,),
+        one=True
+    )
+
+    if not user:
+        flash("Account not found.", "warning")
+        return redirect(url_for("admin.dashboard"))
+
+    # Prevent an administrator from deleting their own account.
+    from flask import session
+
+    if user["id"] == session["user_id"]:
+        flash("Current session admin account can't be deleted.", "danger")
+        return redirect(url_for("admin.dashboard"))
+
+    # Prevent deletion of the last administrator.
+    if user["role"] == "admin":
+        admin_count = q(
+            "SELECT COUNT(*) AS total FROM users WHERE role = 'admin'",
+            one=True
+        )["total"]
+
+        if admin_count <= 1:
+            flash("Admin account can't be deleted.", "danger")
+            return redirect(url_for("admin.dashboard"))
+
+    # A lecturer must have their courses reassigned or deleted first.
+    if user["role"] == "lecturer":
+        assigned_courses = q(
+            "SELECT id FROM courses WHERE lecturer_id = ?",
+            (user_id,)
+        )
+
+        if assigned_courses:
+            flash(
+                "This lecturer still has assigned courses. Reassign or delete those courses first.",
+                "warning"
+            )
+            return redirect(url_for("admin.dashboard"))
+
+    try:
+
+        if user["role"] == "student":
+            connection.execute(
+                "DELETE FROM attendance WHERE student_id = ?",
+                (user_id,)
+            )
+
+            connection.execute(
+                "DELETE FROM enrollments WHERE student_id = ?",
+                (user_id,)
+            )
+
+        connection.execute(
+            "DELETE FROM users WHERE id = ?",
+            (user_id,)
+        )
+
+        connection.commit()
+
+        flash(
+            f"Account for {user['full_name']} deleted successfully.",
+            "success"
+        )
+
+    except Exception:
+        connection.rollback()
+        flash("Unable to delete this account.", "danger")
+
+    return redirect(url_for("admin.dashboard"))
+
+# Delete a course
+@admin.route("/delete-course/<int:course_id>", methods=["POST"])
+@role_required("admin")
+def delete_course(course_id):
+    connection = db()
+    course = q(
+        "SELECT id, code, name FROM courses WHERE id = ?",
+        (course_id,),
+        one=True
+    )
+
+    if not course:
+        flash("Course not found.", "warning")
+        return redirect(url_for("admin.dashboard"))
+
+    try:
+
+        # Remove attendance records associated with this course.
+        connection.execute(
+            "DELETE FROM attendance WHERE course_id = ?",
+            (course_id,)
+        )
+
+        # Remove student enrollments associated with this course.
+        connection.execute(
+            "DELETE FROM enrollments WHERE course_id = ?",
+            (course_id,)
+        )
+
+        # Finally, remove the course.
+        connection.execute(
+            "DELETE FROM courses WHERE id = ?",
+            (course_id,)
+        )
+
+        connection.commit()
+
+        flash(
+            f"Course {course['code']} deleted successfully.",
+            "success"
+        )
+
+    except Exception:
+        connection.rollback()
+        flash("Unable to delete this course.", "danger")
+
+    return redirect(url_for("admin.dashboard"))
+

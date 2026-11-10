@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Sign In | Attendify{% endblock %}
+
+{% block auth_content %}
+<div class="login-wrapper">
+    <div class="login-container">
+        <div class="login-visual">
+            <div class="login-brand">
+                <i class="bi bi-calendar2-check-fill"></i>
+                <span>Attendify</span>
+            </div>
+            <div class="login-message">
+                <span class="login-tag">SMART ATTENDANCE MANAGEMENT</span>
+                <h1>Smarter attendance.<br>Better outcomes.</h1>
+                <p>
+                    A centralized platform for managing student attendance,
+                    monitoring academic engagement and making informed decisions.
+                </p>
+            </div>
+
+            <div class="login-visual-footer">
+                <i class="bi bi-shield-check"></i>
+                Secure University Access
+            </div>
+        </div>
+
+        <div class="login-form-section">
+            <div class="login-form-content">
+                <div class="login-mobile-brand">
+                    <i class="bi bi-calendar2-check-fill"></i>
+                    <span>Attendify</span>
+                </div>
+
+                <span class="form-eyebrow">WELCOME BACK</span>
+                <h2>Sign in to your account</h2>
+                <p class="login-subtitle">
+                    Enter your assigned credentials to continue.
+                </p>
+
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    <div class="mb-4">
+                        <label for="username" class="form-label">Username</label>
+                        <div class="login-input-group">
+                            <i class="bi bi-person"></i>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="username"
+                                name="username"
+                                placeholder="Enter your username" required
+                                autofocus>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="login-input-group">
+                            <i class="bi bi-lock"></i>
+                            <input
+                                type="password"
+                                class="form-control"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary login-button">Sign In
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                </form>
+
+                <div class="login-security-note">
+                    <i class="bi bi-shield-lock"></i>
+                    Your account is protected by secure authentication.
+                </div>
+
+                <div class="login-copyright">
+                    © 2026 Attendify. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

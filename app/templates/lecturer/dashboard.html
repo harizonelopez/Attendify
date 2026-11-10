@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Lecturer Dashboard | Attendify{% endblock %}
+{% block page_heading %}Lecturer Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-intro mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">Welcome, {{ session.get('full_name') }}</h4>
+        <p class="text-muted mb-0">
+            Manage your assigned courses and monitor student attendance.
+        </p>
+    </div>
+    <span class="badge bg-info-subtle text-info px-3 py-2">
+        <i class="bi bi-person-workspace me-1"></i> Lecturer Portal
+    </span>
+</div>
+
+<!-- Summary -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-4">
+        <div class="stat-card">
+            <div class="stat-icon primary">
+                <i class="bi bi-journal-bookmark"></i>
+            </div>
+            <div class="stat-details">
+                <span>Assigned Courses</span>
+                <h3>{{ courses|length }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-4">
+        <div class="stat-card">
+            <div class="stat-icon success">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-details">
+                <span>Total Enrollments</span>
+                <h3>{{ courses|sum(attribute='student_count') }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-4">
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+            <div class="stat-details">
+                <span>Attendance Management</span>
+                <h3>Active</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assigned Courses -->
+<div class="content-card">
+    <div class="card-heading">
+        <div>
+            <h5><i class="bi bi-journals me-2"></i>My Assigned Courses</h5>
+            <p>Choose a course to manage its attendance records.</p>
+        </div>
+        <span class="badge bg-primary-subtle text-primary">
+            {{ courses|length }} Courses
+        </span>
+    </div>
+
+    {% if courses %}
+    <div class="row g-4">
+        {% for course in courses %}
+        <div class="col-md-6 col-xl-4">
+            <div class="course-card h-100">
+                <div class="course-card-top">
+                    <span class="course-code">{{ course.code }}</span>
+                    <i class="bi bi-journal-text course-icon"></i>
+                </div>
+                <h5>{{ course.name }}</h5>
+                <div class="course-enrollment">
+                    <i class="bi bi-people"></i>
+                    <span>{{ course.student_count }} enrolled students</span>
+                </div>
+
+                <div class="course-actions d-flex flex-wrap gap-2course-actions">
+                    <a href="{{ url_for('lecturer.mark_attendance', cid=course.id) }}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-calendar-check me-1"></i>
+                         Mark Attendance
+                    </a>
+                    <a href="{{ url_for('lecturer.report', cid=course.id) }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-bar-chart me-1"></i>
+                         View Report
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <i class="bi bi-journal-x"></i>
+        </div>
+        <h5>No Courses Assigned</h5>
+        <p>
+            You currently have no courses assigned to your account.
+            Please contact the system administrator.
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

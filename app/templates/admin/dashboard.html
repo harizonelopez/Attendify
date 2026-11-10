@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard | Attendify{% endblock %}
+{% block page_heading %}Administration{% endblock %}
+
+{% block content %}
+<div class="page-intro mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">Welcome, {{ session.get('full_name') }}</h4>
+        <p class="text-muted mb-0">Manage your university attendance system from one place.</p>
+    </div>
+    <span class="badge bg-primary-subtle text-primary px-3 py-2">
+        <i class="bi bi-shield-check me-1"></i> Administrator
+    </span>
+</div>
+
+<!-- Statistics -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon primary"><i class="bi bi-people"></i></div>
+            <div class="stat-details">
+                <span>Total Users</span>
+                <h3>{{ users|length }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon success"><i class="bi bi-mortarboard"></i></div>
+            <div class="stat-details">
+                <span>Students</span>
+                <h3>{{ students|length }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon purple"><i class="bi bi-person-workspace"></i></div>
+            <div class="stat-details">
+                <span>Lecturers</span>
+                <h3>{{ lecturers|length }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon warning"><i class="bi bi-journal-bookmark"></i></div>
+            <div class="stat-details">
+                <span>Total Courses</span>
+                <h3>{{ courses|length }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Management Forms -->
+<div class="row g-4 mb-4">
+    <!-- Create User -->
+    <div class="col-lg-6">
+        <div class="content-card h-100">
+            <div class="card-heading">
+                <div>
+                    <h5><i class="bi bi-person-plus me-2"></i>Create Account</h5>
+                    <p>Add a new user to the attendance system.</p>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ url_for('admin.create_user') }}">
+                <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="full_name" class="form-control"
+                           placeholder="Enter full name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="username" class="form-control"
+                           placeholder="Choose a username" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Temporary Password</label>
+                    <input type="password" name="password" class="form-control"
+                           placeholder="Create an initial password" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Account Role</label>
+                    <select name="role" class="form-select" required>
+                        <option value="" selected disabled>Select account role</option>
+                        <option value="student">Student</option>
+                        <option value="lecturer">Lecturer</option>
+                        <option value="admin">Administrator</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Create Account
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Course -->
+    <div class="col-lg-6">
+        <div class="content-card h-100">
+            <div class="card-heading">
+                <div>
+                    <h5><i class="bi bi-journal-plus me-2"></i>Create Course</h5>
+                    <p>Add a course and assign its lecturer.</p>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ url_for('admin.create_course') }}">
+                <div class="mb-3">
+                    <label class="form-label">Course Code</label>
+                    <input type="text" name="code" class="form-control"
+                           placeholder="e.g. CSC 301" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Course Name</label>
+                    <input type="text" name="name" class="form-control"
+                           placeholder="Enter course name" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Assign Lecturer</label>
+                    <select name="lecturer_id" class="form-select"
+                            {% if lecturers %}required{% else %}disabled{% endif %}>
+                        <option value="" selected disabled>
+                            {% if lecturers %}
+                                Select lecturer
+                            {% else %}
+                                No lecturers available
+                            {% endif %}
+                        </option>
+
+                        {% for lecturer in lecturers %}
+                        <option value="{{ lecturer.id }}">
+                            {{ lecturer.full_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    {% if not lecturers %}
+                    <small class="text-muted d-block mt-2">
+                        Create a lecturer account before creating a course.
+                    </small>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Create Course
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Student Enrollment -->
+<div class="content-card mb-4">
+    <div class="card-heading">
+        <div>
+            <h5><i class="bi bi-person-check me-2"></i>Student Enrollment</h5>
+            <p>Assign students to their respective courses.</p>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin.enroll_student') }}">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label">Select Student</label>
+                <select name="student_id" class="form-select" required>
+                    <option value="" selected disabled>Choose student</option>
+                    {% for student in students %}
+                    <option value="{{ student.id }}">
+                        {{ student.full_name }} ({{ student.username }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-5">
+                <label class="form-label">Select Course</label>
+                <select name="course_id" class="form-select" required>
+                    <option value="" selected disabled>Choose course</option>
+                    {% for course in courses %}
+                    <option value="{{ course.id }}">
+                        {{ course.code }} — {{ course.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    Enroll Student
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Administrator Accounts -->
+{% set admins = users|selectattr('role', 'equalto', 'admin')|list %}
+
+{% if admins %}
+<div class="content-card mb-4">
+    <div class="card-heading">
+        <div>
+            <h5><i class="bi bi-shield-lock me-2"></i>Administrator Accounts</h5>
+            <p>Manage system administrator accounts.</p>
+        </div>
+        <span class="badge bg-primary-subtle text-primary px-3 py-2">
+            {{ admins|length }} Administrators
+        </span>
+    </div>
+
+    <div class="mb-3">
+        <input type="search" class="form-control"
+               placeholder="Search administrators..."
+               data-table-search="#adminsTable">
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle" id="adminsTable">
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for admin in admins %}
+                <tr>
+                    <td class="fw-semibold">{{ admin.full_name }}</td>
+                    <td>{{ admin.username }}</td>
+                    <td>
+                        <span class="badge bg-primary-subtle text-primary">
+                            Administrator
+                        </span>
+                    </td>
+                    <td>
+                        {% if admin.id != session.get('user_id') %}
+                        <form method="POST" action="{{ url_for('admin.delete_user', user_id=admin.id) }}">
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-confirm="Delete this administrator account?">
+                                <i class="bi bi-trash me-1"></i>Delete
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="text-muted small">Current account</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Lecturer Accounts -->
+<div class="content-card mb-4">
+    <div class="card-heading">
+        <div>
+            <h5><i class="bi bi-person-workspace me-2"></i>Lecturer Accounts</h5>
+            <p>Manage and view registered lecturers.</p>
+        </div>
+        <span class="badge bg-info-subtle text-info px-3 py-2">
+            {{ lecturers|length }} Lecturers
+        </span>
+    </div>
+
+    <div class="mb-3">
+        <input type="search" class="form-control"
+               placeholder="Search lecturers by name or username..."
+               data-table-search="#lecturersTable">
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle" id="lecturersTable">
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lecturer in lecturers %}
+                <tr>
+                    <td class="fw-semibold">{{ lecturer.full_name }}</td>
+                    <td>{{ lecturer.username }}</td>
+                    <td>
+                        <span class="badge bg-info-subtle text-info">Lecturer</span>
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin.delete_user', user_id=lecturer.id) }}">
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-confirm="Delete this lecturer account? The lecturer must have no assigned courses.">
+                                <i class="bi bi-trash me-1"></i>Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">
+                        No lecturer accounts registered yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Student Accounts -->
+<div class="content-card mb-4">
+    <div class="card-heading">
+        <div>
+            <h5><i class="bi bi-mortarboard me-2"></i>Student Accounts</h5>
+            <p>Manage and view registered students.</p>
+        </div>
+        <span class="badge bg-success-subtle text-success px-3 py-2">
+            {{ students|length }} Students
+        </span>
+    </div>
+
+    <div class="mb-3">
+        <input type="search" class="form-control"
+               placeholder="Search students by name or username..."
+               data-table-search="#studentsTable">
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle" id="studentsTable">
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td class="fw-semibold">{{ student.full_name }}</td>
+                    <td>{{ student.username }}</td>
+                    <td>
+                        <span class="badge bg-success-subtle text-success">Student</span>
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin.delete_user', user_id=student.id) }}">
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-confirm="Delete this student account and all associated attendance and enrollment records?">
+                                <i class="bi bi-trash me-1"></i>Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">
+                        No student accounts registered yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Course Overview -->
+<div class="content-card">
+    <div class="card-heading">
+        <div>
+            <h5><i class="bi bi-journals me-2"></i>Course Overview</h5>
+            <p>Manage all courses currently registered in the system.</p>
+        </div>
+        <span class="badge bg-warning-subtle text-warning px-3 py-2">
+            {{ courses|length }} Courses
+        </span>
+    </div>
+
+    <div class="mb-3">
+        <input type="search" class="form-control"
+               placeholder="Search courses by code, name or lecturer..."
+               data-table-search="#coursesTable">
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle" id="coursesTable">
+            <thead>
+                <tr>
+                    <th>Course Code</th>
+                    <th>Course Name</th>
+                    <th>Assigned Lecturer</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <td class="fw-bold">{{ course.code }}</td>
+                    <td>{{ course.name }}</td>
+                    <td>{{ course.lecturer_name }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin.delete_course', course_id=course.id) }}">
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-confirm="Delete this course and all its attendance and enrollment records?">
+                                <i class="bi bi-trash me-1"></i>Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">
+                        No courses have been created yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

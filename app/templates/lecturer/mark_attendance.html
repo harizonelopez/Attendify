@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Mark Attendance | Attendify{% endblock %}
+{% block page_heading %}Attendance Management{% endblock %}
+
+{% block content %}
+<div class="page-intro mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">Mark Attendance</h4>
+        <p class="text-muted mb-0">Record attendance for your enrolled students.</p>
+    </div>
+    <a href="{{ url_for('lecturer.dashboard') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Courses
+    </a>
+</div>
+
+<!-- Course Information -->
+<div class="content-card mb-4">
+    <div class="row align-items-center g-3">
+        <div class="col-md-8">
+            <span class="course-code">{{ course.code }}</span>
+            <h4 class="fw-bold mt-2 mb-1">{{ course.name }}</h4>
+            <p class="text-muted mb-0">
+                <i class="bi bi-people me-2"></i>
+                 {{ students|length }} enrolled students
+            </p>
+        </div>
+
+        <div class="col-md-4 text-md-end">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                <i class="bi bi-calendar-check me-1"></i>
+                 Attendance Session
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Form -->
+<div class="content-card">
+    <div class="card-heading">
+        <div>
+            <h5><i class="bi bi-clipboard-check me-2"></i>Student Attendance Register</h5>
+            <p>Select the attendance status for every student.</p>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('lecturer.mark_attendance', cid=course.id) }}" id="attendanceForm">
+        <!-- Date and Search -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-5">
+                <label for="attendanceDate" class="form-label">Attendance Date</label>
+                <input type="date"
+                       name="date"
+                       id="attendanceDate"
+                       class="form-control"
+                       value="{{ today }}" required>
+            </div>
+            <div class="col-md-7">
+                <label for="studentSearch" class="form-label">Search Students</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="search"
+                           id="studentSearch"
+                           class="form-control"
+                           placeholder="Search by name or username...">
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Summary -->
+        <div class="attendance-summary mb-4">
+            <div class="attendance-summary-item">
+                <span class="summary-dot total"></span>
+                <div>
+                    <small>Total Students</small>
+                    <strong id="totalCount">{{ students|length }}</strong>
+                </div>
+            </div>
+            <div class="attendance-summary-item">
+                <span class="summary-dot present"></span>
+                <div>
+                    <small>Present</small>
+                    <strong id="presentCount">0</strong>
+                </div>
+            </div>
+            <div class="attendance-summary-item">
+                <span class="summary-dot absent"></span>
+                <div>
+                    <small>Absent</small>
+                    <strong id="absentCount">0</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Table -->
+        <div class="table-responsive">
+            <table class="table align-middle attendance-table" id="attendanceTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Student</th>
+                        <th>Username</th>
+                        <th class="text-center" scope="col">Attendance Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for student in students %}
+                    <tr class="attendance-row">
+                        <td class="text-muted">{{ loop.index }}</td>
+                        <td>
+                            <div class="student-identity">
+                                <div class="student-avatar">
+                                    {{ student.full_name[0]|upper }}
+                                </div>
+                                <span class="fw-semibold">
+                                    {{ student.full_name }}
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            {{ student.username }}
+                        </td>
+                        <td>
+                            <div class="attendance-options">
+                                <label class="attendance-option present-option">
+                                    <input type="radio"
+                                           name="student_{{ student.id }}"
+                                           value="present"
+                                           class="attendance-radio">
+                                    <span>
+                                        <i class="bi bi-check-circle me-1"></i>
+                                         Present
+                                    </span>
+                                </label>
+
+                                <label class="attendance-option absent-option">
+                                    <input type="radio"
+                                           name="student_{{ student.id }}"
+                                           value="absent"
+                                           class="attendance-radio">
+                                    <span>
+                                        <i class="bi bi-x-circle me-1"></i>
+                                         Absent
+                                    </span>
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <i class="bi bi-people fs-2 d-block mb-2"></i>
+                             No students are enrolled in this course.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Actions -->
+        {% if students %}
+        <div class="attendance-form-footer mt-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <p class="text-muted small mb-0">
+                <i class="bi bi-info-circle me-1"></i>
+                Ensure every student has an attendance status before saving.
+            </p>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save me-2"></i>
+                 Save Attendance
+            </button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+{% endblock %}
