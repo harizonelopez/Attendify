@@ -41,7 +41,8 @@ def init_db():
         current_app.config["DATABASE"]
     )
     try:
-        connection.executescript("""
+        connection.executescript(
+            """
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY,
                 username TEXT UNIQUE,
@@ -67,7 +68,22 @@ def init_db():
                 present INTEGER,
                 UNIQUE(course_id, student_id, date)
             );
-        """)
+            CREATE TABLE IF NOT EXISTS audit_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                username TEXT,
+                full_name TEXT,
+                role TEXT,
+                action TEXT NOT NULL,
+                entity_type TEXT,
+                entity_id INTEGER,
+                details TEXT,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at
+            ON audit_logs(created_at);
+        """
+        )
 
         # Seed demo accounts only when the database is empty.
         if not connection.execute(
