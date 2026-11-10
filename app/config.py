@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+from dotenv import load_dotenv
 
 # Project root directory
 BASE_DIR = os.path.abspath(
@@ -8,10 +9,11 @@ BASE_DIR = os.path.abspath(
 
 class Config:
     # Application security
-    SECRET_KEY = os.environ.get(
-        "SECRET_KEY",
-        "development-secret-key-change-later"
-    )
+    SECRET_KEY = os.environ.get("SECRET_KEY")
+
+    if not SECRET_KEY:
+        raise RuntimeError("SECRET_KEY is missing. Check your secrets.env file.")
+
     PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
     
     # Database configuration
