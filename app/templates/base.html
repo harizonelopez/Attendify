@@ -22,6 +22,18 @@
 </head>
 
 <body>
+    <!-- Global Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="global-flash-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} fade show" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
     {% if session.get("user_id") %}
     <div class="app-layout">
         <!-- Sidebar -->
@@ -79,9 +91,13 @@
             <div class="sidebar-section">
                 <span class="sidebar-label">ACCOUNT</span>
                 <nav class="sidebar-nav">
+                    <a href="{{ url_for('auth.change_password') }}" class="sidebar-link">
+                        <i class="bi bi-shield-lock-fill"></i>
+                        <span>Change Password</span>
+                    </a>
+
                     <form action="{{ url_for('auth.logout') }}" method="POST">
-                        <button type="submit"
-                                class="sidebar-link logout-link w-100 text-start border-0">
+                        <button type="submit" class="sidebar-link logout-link w-100 text-start border-0">
                             <i class="bi bi-box-arrow-left"></i>
                             <span>Sign Out</span>
                         </button>
@@ -144,25 +160,6 @@
 
             <!-- Page content -->
             <main class="page-content">
-                <!-- Flash messages -->
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        <div class="flash-container">
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ category }} alert-dismissible fade show"
-                                     role="alert">
-                                     {{ message }}
-                                    <button type="button"
-                                            class="btn-close"
-                                            data-bs-dismiss="alert"
-                                            aria-label="Close">
-                                    </button>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                {% endwith %}
-
                 {% block content %}{% endblock %}
             </main>
 
