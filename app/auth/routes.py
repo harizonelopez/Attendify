@@ -8,8 +8,7 @@ auth = Blueprint("auth", __name__)
 
 @auth.route("/login", methods=["GET", "POST"])
 def login():
-    # Redirect users who are already authenticated
-    if session.get("user_id") and request.method == "GET":
+    if session.get("user_id") and request.method == "GET": # Redirect users who are already authenticated
         role = session.get("role")
 
         if role == "admin":
@@ -45,7 +44,7 @@ def login():
                 action="login",
                 entity_type="user",
                 entity_id=user["id"],
-                details="User sign in successfully."
+                details="User sign in successfull."
             )
 
             if user["role"] == "admin":
@@ -62,15 +61,14 @@ def login():
 
 @auth.route("/logout", methods=["POST"])
 def logout():
-    # Record logout before clearing the session
-    log_action(
+    log_action( # Record logout before clearing the session
         action="logout",
         entity_type="user",
         entity_id=session.get("user_id"),
         details="User logged out."
     )
     session.clear()
-    flash("You have been successfully signed out.", "success")
+    flash("Sign out successfull.", "success")
 
     return redirect(url_for("auth.login"))
 
@@ -92,7 +90,7 @@ def change_password():
         if not check_password_hash(
             user["password_hash"], current_password
         ):
-            flash("Your current password is incorrect.", "danger")
+            flash("Incorrect current password.", "danger")
             return redirect(url_for("auth.change_password"))
 
         if len(new_password) < 8 or not any(c.isalpha() for c in new_password) or not any(c.isdigit() for c in new_password):
@@ -100,11 +98,11 @@ def change_password():
             return redirect(url_for("auth.change_password"))
 
         if new_password != confirm_password:
-            flash("The new password doesn't match", "danger")
+            flash("New password mismatch", "danger")
             return redirect(url_for("auth.change_password"))
 
         if new_password == current_password:
-            flash("The new password must be different from your current password", "warning")
+            flash("Current password can't be the new password", "warning")
             return redirect(url_for("auth.change_password"))
 
         run(
@@ -126,7 +124,9 @@ def change_password():
             details="User changed their password."
         )
 
-        flash("Password successfully changed", "success")
-        return redirect(url_for("auth.change_password"))
+        session.clear()
+
+        flash("Password successfully changed. Sign in using the new password", "success")
+        return redirect(url_for("auth.login"))
 
     return render_template("change_password.html")
