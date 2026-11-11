@@ -12,6 +12,7 @@ The system simplifies attendance tracking by allowing lecturers to record studen
 - Administrator-controlled account creation.
 - Account management, including deletion.
 - Protected dashboards based on user roles.
+- Improved audit logs and administrative activity tracking.
 
 ### Administrator Dashboard
 - Create and manage student, lecturer, and administrator accounts.
@@ -183,7 +184,6 @@ For production deployment, configure a strong secret key, enable CSRF protection
 - Automated attendance notifications.
 - More advanced analytics and reporting.
 - Integration with institutional student information systems.
-- Improved audit logs and administrative activity tracking.
 - Deployment with a production database.
 
 ## Project Purpose
