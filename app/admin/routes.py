@@ -4,6 +4,8 @@ from app.auth.decorators import role_required
 from app.database.db import db, q
 from app.services.audit import log_action
 from app.services.analytics import course_statistics
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 admin = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -89,7 +91,21 @@ def audit_logs():
         """
     )
 
-    return render_template("admin/audit_logs.html", logs=logs)
+    nairobi_tz = ZoneInfo("Africa/Nairobi")
+    formatted_logs = []
+
+    for log in logs:
+        log_data = dict(log)
+        utc_time = datetime.fromisoformat(
+            log_data["created_at"]
+        ).replace(tzinfo=ZoneInfo("UTC"))
+
+        log_data["local_time"] = utc_time.astimezone(
+            nairobi_tz
+        ).strftime("%d %b %Y, %I:%M:%S %p")
+        formatted_logs.append(log_data)
+
+    return render_template("admin/audit_logs.html", logs=formatted_logs)
 
 
 @admin.route("/create-user", methods=["POST"])
