@@ -130,4 +130,31 @@ document.addEventListener("DOMContentLoaded", function () {
             updateAttendanceSummary();
         }
     }
+
+    // Show/hide password fields
+    document.querySelectorAll(".password-toggle").forEach(button => {
+        button.addEventListener("click", () => {
+            const input = document.getElementById(button.dataset.target);
+            const icon = button.querySelector("i");
+
+            if (!input || !icon) return;
+
+            const isPassword = input.type === "password";
+
+            input.type = isPassword ? "text" : "password";
+            icon.classList.toggle("bi-eye", !isPassword);
+            icon.classList.toggle("bi-eye-slash", isPassword);
+        });
+    });
+
+    // Automatically dismiss global flash notifications
+    document.querySelectorAll(".global-flash-container .alert").forEach(alert => {
+        setTimeout(() => {
+            alert.classList.remove("show");
+
+            setTimeout(() => {
+                alert.remove();
+            }, 300);
+        }, 4000);
+    });
 });
