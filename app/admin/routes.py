@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash
 from app.auth.decorators import role_required
 from app.database.db import db, q
 from app.services.audit import log_action
+from app.services.analytics import course_statistics
 
 admin = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -25,12 +26,44 @@ def dashboard():
         "SELECT * FROM users WHERE role = 'lecturer' ORDER BY full_name"
     )
 
+    course_analytics = []
+    for course in courses:
+        total_students = q(
+            """
+            SELECT COUNT(*) AS total
+            FROM enrollments
+            WHERE course_id = ?
+            """,
+            (course["id"],),
+            one=True
+        )["total"]
+
+        attendance_records = q(
+            """
+            SELECT student_id, present
+            FROM attendance
+            WHERE course_id = ?
+            """,
+            (course["id"],)
+        )
+
+        statistics = course_statistics(
+            total_students,
+            attendance_records
+        )
+
+        course_analytics.append({
+            "course": course,
+            "statistics": statistics
+        })
+
     return render_template(
         "admin/dashboard.html",
         users=users,
         courses=courses,
         students=students,
-        lecturers=lecturers
+        lecturers=lecturers,
+        course_analytics=course_analytics
     )
 
 

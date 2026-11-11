@@ -78,6 +78,88 @@
     </div>
 </div>
 
+<!-- Course Analytics -->
+<div class="content-card mb-4">
+    <div class="card-heading">
+        <div>
+            <h5><i class="bi bi-graph-up-arrow me-2"></i>Course Analytics</h5>
+            <p>Monitor attendance performance across registered courses.</p>
+        </div>
+    </div>
+
+    {% if course_analytics %}
+    <div class="row g-3">
+        {% for item in course_analytics %}
+        {% set stats = item.statistics %}
+        <div class="col-lg-6">
+            <div class="border rounded-3 p-3 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h6 class="fw-bold mb-1">{{ item.course.code }}</h6>
+                        <small class="text-muted">{{ item.course.name }}</small>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary">
+                        {{ stats.total_students }} Students
+                    </span>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small class="text-muted">Average Attendance</small>
+                        <strong>{{ stats.average_attendance }}%</strong>
+                    </div>
+                    <div class="progress" style="height: 9px;">
+                        <div class="progress-bar"
+                             role="progressbar"
+                             style="width: {{ [stats.average_attendance, 100]|min }}%;"
+                             aria-valuenow="{{ stats.average_attendance }}"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-4">
+                        <div class="bg-light rounded-3 p-2 text-center">
+                            <h5 class="mb-0">{{ stats.total_sessions }}</h5>
+                            <small class="text-muted">Sessions</small>
+                        </div>
+                    </div>
+
+                    <div class="col-4">
+                        <div class="bg-danger-subtle rounded-3 p-2 text-center">
+                            <h5 class="mb-0 text-danger">
+                                {{ stats.at_risk_students }}
+                            </h5>
+                            <small class="text-muted">At Risk</small>
+                        </div>
+                    </div>
+
+                    <div class="col-4">
+                        <div class="bg-success-subtle rounded-3 p-2 text-center">
+                            <h5 class="mb-0 text-success">
+                                {{ stats.good_standing_students }}
+                            </h5>
+                            <small class="text-muted">Good Standing</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="text-center py-4">
+        <i class="bi bi-bar-chart-line display-5 text-muted"></i>
+        <p class="text-muted mt-2 mb-0">
+            No courses available for analytics yet.
+        </p>
+    </div>
+    {% endif %}
+</div>
+
 <!-- Management Forms -->
 <div class="row g-4 mb-4">
     <!-- Create User -->
