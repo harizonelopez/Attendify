@@ -3,6 +3,19 @@
 {% block page_heading %}Attendance Management{% endblock %}
 
 {% block content %}
+
+{% set counts = namespace(present=0, absent=0, pending=0) %}
+{% for student in students %}
+    {% set status = attendance_status.get(student.id) %}
+    {% if status == "Present" %}
+        {% set counts.present = counts.present + 1 %}
+    {% elif status == "Absent" %}
+        {% set counts.absent = counts.absent + 1 %}
+    {% else %}
+        {% set counts.pending = counts.pending + 1 %}
+    {% endif %}
+{% endfor %}
+
 <div class="page-intro mb-4 attendance-page-intro">
     <div>
         <span class="attendance-eyebrow">COURSE MANAGEMENT</span>
@@ -28,7 +41,7 @@
         <div class="col-md-4 text-md-end">
             <span class="attendance-session-badge">
                 <i class="bi bi-calendar-check me-2"></i>
-                 Attendance Session
+                 Today's Attendance
             </span>
         </div>
     </div>
@@ -39,13 +52,29 @@
     <div class="card-heading attendance-register-heading">
         <div>
             <span class="attendance-eyebrow">RECORD KEEPING</span>
-            <h5><i class="bi bi-clipboard-check me-2"></i>Student Attendance Register</h5>
-            <p>Select the attendance status for every student.</p>
+            <h5>
+                <i class="bi bi-clipboard-check me-2"></i>
+                 Student Attendance Register
+            </h5>
+            <p>Mark attendance for students who have not yet been recorded.</p>
         </div>
         <span class="attendance-register-icon">
             <i class="bi bi-journal-check"></i>
         </span>
     </div>
+
+    {% if counts.pending == 0 and students %}
+        <div class="alert alert-success text-center mb-4">
+            <i class="bi bi-check-circle-fill me-2"></i>
+             All students have been marked for today's attendance.
+        </div>
+    {% elif counts.present + counts.absent > 0 %}
+        <div class="alert alert-warning text-center mb-4">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            Some students have already been marked.
+            You can only mark the remaining students.
+        </div>
+    {% endif %}
 
     <form method="POST" action="{{ url_for('lecturer.mark_attendance', cid=course.id) }}" id="attendanceForm">
         <!-- Date and Search -->
@@ -56,10 +85,16 @@
                        name="date"
                        id="attendanceDate"
                        class="form-control attendance-input"
-                       value="{{ today }}" required>
+                       value="{{ today }}"
+                       min="{{ today }}"
+                       max="{{ today }}"
+                       required>
             </div>
+
             <div class="col-md-7">
-                <label for="studentSearch" class="form-label">Search Students</label>
+                <label for="studentSearch" class="form-label">
+                    Search Students
+                </label>
                 <div class="input-group attendance-search">
                     <span class="input-group-text">
                         <i class="bi bi-search"></i>
@@ -81,18 +116,20 @@
                     <strong id="totalCount">{{ students|length }}</strong>
                 </div>
             </div>
+
             <div class="attendance-summary-item">
                 <span class="summary-dot present"></span>
                 <div>
                     <small>Present</small>
-                    <strong id="presentCount">0</strong>
+                    <strong id="presentCount">{{ counts.present }}</strong>
                 </div>
             </div>
+
             <div class="attendance-summary-item">
                 <span class="summary-dot absent"></span>
                 <div>
                     <small>Absent</small>
-                    <strong id="absentCount">0</strong>
+                    <strong id="absentCount">{{ counts.absent }}</strong>
                 </div>
             </div>
         </div>
@@ -105,14 +142,20 @@
                         <th>#</th>
                         <th>Student</th>
                         <th>Username</th>
-                        <th class="text-center" scope="col">Attendance Status</th>
+                        <th class="text-center" scope="col">
+                            Attendance Status
+                        </th>
                     </tr>
                 </thead>
 
                 <tbody>
                     {% for student in students %}
+                    {% set status = attendance_status.get(student.id) %}
                     <tr class="attendance-row">
-                        <td class="attendance-number">{{ loop.index }}</td>
+                        <td class="attendance-number">
+                            {{ loop.index }}
+                        </td>
+
                         <td>
                             <div class="student-identity">
                                 <div class="student-avatar">
@@ -123,40 +166,64 @@
                                 </span>
                             </div>
                         </td>
+
                         <td class="attendance-username">
                             {{ student.username }}
                         </td>
-                        <td>
-                            <div class="attendance-options">
-                                <label class="attendance-option present-option">
-                                    <input type="radio"
-                                           name="student_{{ student.id }}"
-                                           value="present"
-                                           class="attendance-radio">
-                                    <span>
-                                        <i class="bi bi-check-circle me-1"></i>
-                                         Present
-                                    </span>
-                                </label>
 
-                                <label class="attendance-option absent-option">
-                                    <input type="radio"
-                                           name="student_{{ student.id }}"
-                                           value="absent"
-                                           class="attendance-radio">
-                                    <span>
-                                        <i class="bi bi-x-circle me-1"></i>
-                                         Absent
-                                    </span>
-                                </label>
-                            </div>
+                        <td>
+                            {% if status %}
+                                <div class="text-center">
+                                    {% if status == "Present" %}
+                                        <span class="badge bg-success px-3 py-2">
+                                            <i class="bi bi-check-circle-fill me-1"></i>
+                                            Present
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger px-3 py-2">
+                                            <i class="bi bi-x-circle-fill me-1"></i>
+                                            Absent
+                                        </span>
+                                    {% endif %}
+
+                                    <small class="d-block attendance-muted mt-1">
+                                        Already recorded
+                                    </small>
+                                </div>
+
+                            {% else %}
+                                <div class="attendance-options">
+                                    <label class="attendance-option present-option">
+                                        <input type="radio"
+                                               name="student_{{ student.id }}"
+                                               value="present"
+                                               class="attendance-radio">
+                                        <span>
+                                            <i class="bi bi-check-circle me-1"></i>
+                                            Present
+                                        </span>
+                                    </label>
+
+                                    <label class="attendance-option absent-option">
+                                        <input type="radio"
+                                               name="student_{{ student.id }}"
+                                               value="absent"
+                                               class="attendance-radio">
+                                        <span>
+                                            <i class="bi bi-x-circle me-1"></i>
+                                            Absent
+                                        </span>
+                                    </label>
+                                </div>
+                            {% endif %}
                         </td>
                     </tr>
+
                     {% else %}
                     <tr>
                         <td colspan="4" class="text-center py-5 attendance-muted">
                             <i class="bi bi-people fs-2 d-block mb-2"></i>
-                             No students are enrolled in this course.
+                            No students are enrolled in this course.
                         </td>
                     </tr>
                     {% endfor %}
@@ -165,18 +232,23 @@
         </div>
 
         <!-- Actions -->
-        {% if students %}
+        {% if counts.pending > 0 %}
         <div class="attendance-form-footer mt-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+
             <p class="attendance-muted small mb-0">
                 <i class="bi bi-info-circle me-1"></i>
-                 Ensure every student has an attendance status before saving.
+                {{ counts.pending }} student(s) still need to be marked.
             </p>
+
             <button type="submit" class="btn attendance-save-btn">
                 <i class="bi bi-save me-2"></i>
-                 Save Attendance
+                Save Attendance
             </button>
+
         </div>
         {% endif %}
+
     </form>
 </div>
+
 {% endblock %}
