@@ -3,6 +3,7 @@
 {% block page_heading %}Administration{% endblock %}
 
 {% block content %}
+<div class="admin-dashboard">
 <div class="page-intro mb-4">
     <div>
         <h4 class="fw-bold mb-1">Welcome, {{ session.get('full_name') }}</h4>
@@ -541,5 +542,6 @@
             </tbody>
         </table>
     </div>
+</div>
 </div>
 {% endblock %}

@@ -1398,7 +1398,6 @@ textarea.form-control {
     border-radius: 10px;
 }
 
-
 /* ---- FUTURISTIC ATTENDIFY LOGIN BACKGROUND ---- */
 .login-wrapper {
     position: relative;
@@ -1743,3 +1742,1731 @@ textarea.form-control {
 
 }
 
+/* ---- LECTURER DASHBOARD ---- */
+/* Welcome section */
+.lecturer-intro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 26px 30px;
+    border: 1px solid #e3e9f7;
+    border-radius: 16px;
+    background:
+        radial-gradient(circle at 90% 10%, rgba(114, 9, 183, 0.07), transparent 35%),
+        linear-gradient(120deg, #ffffff, #f5f7ff);
+    box-shadow: 0 5px 20px rgba(20, 33, 61, 0.04);
+}
+
+.lecturer-eyebrow {
+    display: inline-block;
+    margin-bottom: 9px;
+    color: #4361ee;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.lecturer-intro h4 {
+    margin-bottom: 6px;
+    color: #14213d;
+    font-size: 1.45rem;
+    font-weight: 800;
+}
+
+.lecturer-intro p {
+    margin: 0;
+    color: #778198;
+    font-size: 0.9rem;
+}
+
+.lecturer-portal-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 16px;
+    border: 1px solid #dce4ff;
+    border-radius: 30px;
+    color: #4361ee;
+    background: #eef2ff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Statistics cards */
+.lecturer-stat-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    height: 100%;
+    min-height: 125px;
+    padding: 22px;
+    overflow: hidden;
+    border: 1px solid #e8edf6;
+    border-radius: 15px;
+    background: #ffffff;
+    box-shadow: 0 5px 18px rgba(20, 33, 61, 0.045);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.lecturer-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 26px rgba(20, 33, 61, 0.09);
+}
+
+.lecturer-stat-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 75px;
+    height: 75px;
+    border-radius: 0 0 0 100%;
+    opacity: 0.45;
+}
+
+.lecturer-stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 53px;
+    height: 53px;
+    border-radius: 14px;
+    font-size: 1.4rem;
+}
+
+.lecturer-stat-card span {
+    display: block;
+    margin-bottom: 5px;
+    color: #78839a;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.lecturer-stat-card h3 {
+    margin: 0;
+    color: #14213d;
+    font-size: 1.65rem;
+    font-weight: 800;
+}
+
+.lecturer-stat-card small {
+    display: block;
+    margin-top: 4px;
+    color: #98a2b5;
+    font-size: 0.72rem;
+}
+
+/* Blue statistic */
+.stat-blue .lecturer-stat-icon {
+    color: #4361ee;
+    background: #edf1ff;
+}
+
+.stat-blue::after {
+    background: #4361ee;
+}
+
+/* Violet statistic */
+.stat-violet .lecturer-stat-icon {
+    color: #7209b7;
+    background: #f5eaff;
+}
+
+.stat-violet::after {
+    background: #7209b7;
+}
+
+/* Cyan statistic */
+.stat-cyan .lecturer-stat-icon {
+    color: #0891b2;
+    background: #e5f9fc;
+}
+
+.stat-cyan::after {
+    background: #0891b2;
+}
+
+/* Courses section */
+.lecturer-courses-section {
+    padding: 25px;
+    border: 1px solid #e8edf6;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 5px 20px rgba(20, 33, 61, 0.04);
+}
+
+.lecturer-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.lecturer-section-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #4361ee;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+}
+
+.lecturer-section-heading h5 {
+    margin-bottom: 5px;
+    color: #14213d;
+    font-size: 1.12rem;
+    font-weight: 800;
+}
+
+.lecturer-section-heading h5 i {
+    color: #4361ee;
+}
+
+.lecturer-section-heading p {
+    margin: 0;
+    color: #8791a5;
+    font-size: 0.84rem;
+}
+
+.lecturer-course-count {
+    padding: 8px 13px;
+    border: 1px solid #dce4ff;
+    border-radius: 30px;
+    color: #4361ee;
+    background: #eef2ff;
+    font-size: 0.76rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Individual course cards */
+.lecturer-course-card {
+    position: relative;
+    padding: 21px;
+    overflow: hidden;
+    border: 1px solid #e5eaf5;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #ffffff, #fafbff);
+    transition: transform 0.25s ease, border-color 0.25s ease,
+                box-shadow 0.25s ease;
+}
+
+.lecturer-course-card:hover {
+    transform: translateY(-5px);
+    border-color: #cbd6ff;
+    box-shadow: 0 13px 28px rgba(67, 97, 238, 0.09);
+}
+
+.lecturer-course-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.lecturer-course-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    color: #ffffff;
+    background: linear-gradient(135deg, #4361ee, #7209b7);
+    box-shadow: 0 5px 13px rgba(67, 97, 238, 0.2);
+    font-size: 1.2rem;
+}
+
+.lecturer-course-code {
+    padding: 7px 11px;
+    border: 1px solid #e1e7ff;
+    border-radius: 7px;
+    color: #4361ee;
+    background: #f0f3ff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.lecturer-course-card h5 {
+    margin-bottom: 13px;
+    color: #14213d;
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.lecturer-course-enrollment {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #7d879c;
+    font-size: 0.81rem;
+}
+
+.lecturer-course-enrollment i {
+    color: #4361ee;
+    font-size: 0.95rem;
+}
+
+.lecturer-course-divider {
+    height: 1px;
+    margin: 19px 0;
+    background: #edf0f6;
+}
+
+/* Course action buttons */
+.lecturer-course-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.lecturer-btn-primary {
+    border: 1px solid #4361ee;
+    color: #ffffff;
+    background: #4361ee;
+    font-weight: 600;
+}
+
+.lecturer-btn-primary:hover {
+    border-color: #304bd0;
+    color: #ffffff;
+    background: #304bd0;
+}
+
+.lecturer-btn-secondary {
+    border: 1px solid #dce3f1;
+    color: #596783;
+    background: #ffffff;
+    font-weight: 600;
+}
+
+.lecturer-btn-secondary:hover {
+    border-color: #7209b7;
+    color: #7209b7;
+    background: #f8f1ff;
+}
+
+/* Empty state */
+.lecturer-empty-state {
+    padding: 55px 20px;
+    text-align: center;
+}
+
+.lecturer-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 75px;
+    height: 75px;
+    margin: 0 auto 18px;
+    border-radius: 22px;
+    color: #4361ee;
+    background: #eef2ff;
+    font-size: 2rem;
+}
+
+.lecturer-empty-state h5 {
+    margin-bottom: 9px;
+    color: #14213d;
+    font-weight: 800;
+}
+
+.lecturer-empty-state p {
+    max-width: 430px;
+    margin: 0 auto;
+    color: #8490a5;
+    font-size: 0.88rem;
+    line-height: 1.7;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .lecturer-intro {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 21px;
+    }
+
+    .lecturer-portal-badge {
+        padding: 9px 13px;
+    }
+
+    .lecturer-courses-section {
+        padding: 18px;
+    }
+
+    .lecturer-section-heading {
+        align-items: flex-start;
+    }
+
+    .lecturer-stat-card {
+        padding: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .lecturer-section-heading {
+        flex-direction: column;
+    }
+
+    .lecturer-course-actions {
+        flex-direction: column;
+    }
+
+    .lecturer-course-actions .btn {
+        width: 100%;
+    }
+}
+
+.lecturer-intro {
+    background: rgb(50, 187, 68) !important;
+}
+
+
+/* ---- LECTURER DASHBOARD - DARK FUTURISTIC THEME ---- */
+body:has(.lecturer-intro) {
+    background: #0B1426;
+    color: #EAF0FA;
+}
+
+.lecturer-intro {
+    background: linear-gradient(120deg, #142440, #1B2D4D);
+    border: 1px solid rgba(120, 160, 220, 0.16);
+    border-radius: 18px;
+    padding: 26px;
+    color: #F8FAFC;
+}
+
+.lecturer-intro h4,
+.lecturer-section-heading h5 {
+    color: #F8FAFC;
+}
+
+.lecturer-intro p {
+    color: #A7B6CC !important;
+}
+
+.lecturer-portal-badge {
+    background: rgba(67, 97, 238, 0.18);
+    color: #9DB2FF;
+    border: 1px solid rgba(67, 97, 238, 0.3);
+}
+
+/* Statistics cards */
+.lecturer-stat-card {
+    background: #162640;
+    border: 1px solid rgba(120, 160, 220, 0.14);
+    border-radius: 16px;
+    color: #F8FAFC;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.lecturer-stat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(67, 97, 238, 0.55);
+}
+
+.lecturer-stat-card h6,
+.lecturer-stat-card p {
+    color: #A7B6CC;
+}
+
+.lecturer-stat-card h3 {
+    color: #FFFFFF;
+}
+
+.lecturer-stat-icon.stat-blue {
+    background: rgba(67, 97, 238, 0.2);
+    color: #8198FF;
+}
+
+.lecturer-stat-icon.stat-violet {
+    background: rgba(114, 9, 183, 0.2);
+    color: #C18AFF;
+}
+
+.lecturer-stat-icon.stat-cyan {
+    background: rgba(0, 180, 216, 0.17);
+    color: #58D8F0;
+}
+
+/* Courses section */
+.lecturer-courses-section {
+    background: #111F35;
+    border: 1px solid rgba(120, 160, 220, 0.15);
+    border-radius: 18px;
+    padding: 26px;
+}
+
+.lecturer-section-heading h5 {
+    color: #F8FAFC;
+}
+
+.lecturer-section-label {
+    color: #8FA8D0;
+}
+
+.lecturer-course-count {
+    background: rgba(67, 97, 238, 0.18);
+    color: #A9BAFF;
+}
+
+/* Individual course cards */
+.lecturer-course-card {
+    height: 100%;
+    background: linear-gradient(145deg, #1B2D49, #162640);
+    border: 1px solid rgba(120, 160, 220, 0.16);
+    border-radius: 16px;
+    padding: 22px;
+    color: #F8FAFC;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.lecturer-course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+.lecturer-course-card h5 {
+    color: #FFFFFF;
+}
+
+.lecturer-course-code {
+    color: #9DB2FF;
+    background: rgba(67, 97, 238, 0.18);
+    border-radius: 7px;
+    padding: 6px 10px;
+}
+
+.lecturer-course-icon {
+    color: #8198FF;
+    font-size: 24px;
+}
+
+.lecturer-course-enrollment {
+    color: #A7B6CC;
+}
+
+.lecturer-course-divider {
+    border-color: rgba(120, 160, 220, 0.15);
+}
+
+/* Course action buttons */
+.lecturer-btn-primary {
+    background: #4361EE;
+    border: 1px solid #4361EE;
+    color: #FFFFFF;
+}
+
+.lecturer-btn-primary:hover {
+    background: #3451D1;
+    border-color: #3451D1;
+    color: #FFFFFF;
+}
+
+.lecturer-btn-secondary {
+    background: transparent;
+    border: 1px solid #637A9C;
+    color: #C5D3E8;
+}
+
+.lecturer-btn-secondary:hover {
+    background: rgba(67, 97, 238, 0.15);
+    border-color: #8198FF;
+    color: #FFFFFF;
+}
+
+/* Empty state */
+.lecturer-empty-state {
+    background: #162640;
+    border: 1px dashed #405575;
+    border-radius: 16px;
+    color: #A7B6CC;
+}
+
+.lecturer-empty-icon {
+    color: #8198FF;
+}
+
+/* Responsive spacing */
+@media (max-width: 768px) {
+    .lecturer-intro,
+    .lecturer-courses-section {
+        padding: 18px;
+    }
+}
+
+/* ---- MARK ATTENDANCE - DARK THEME ---- */
+.attendance-page-intro {
+    background: linear-gradient(120deg, #142440, #1B2D4D);
+    border: 1px solid rgba(120, 160, 220, 0.16);
+    border-radius: 18px;
+    padding: 24px;
+}
+
+.attendance-page-intro h4,
+.attendance-course-card h4 {
+    color: #F8FAFC;
+}
+
+.attendance-page-intro p,
+.attendance-muted {
+    color: #A7B6CC !important;
+}
+
+.attendance-eyebrow {
+    display: inline-block;
+    color: #8198FF;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin-bottom: 9px;
+}
+
+.attendance-back-btn {
+    border: 1px solid #526A8C;
+    color: #D5E1F2;
+}
+
+.attendance-back-btn:hover {
+    background: rgba(67, 97, 238, 0.15);
+    border-color: #8198FF;
+    color: white;
+}
+
+/* Course information */
+.attendance-course-card,
+.attendance-register-card {
+    background: #162640;
+    border: 1px solid rgba(120, 160, 220, 0.15);
+    border-radius: 18px;
+    padding: 25px;
+    color: #F8FAFC;
+}
+
+.attendance-course-code {
+    display: inline-block;
+    background: rgba(67, 97, 238, 0.2);
+    color: #A9BAFF;
+    border: 1px solid rgba(67, 97, 238, 0.25);
+    border-radius: 7px;
+    padding: 6px 11px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.attendance-session-badge {
+    display: inline-block;
+    background: rgba(67, 97, 238, 0.17);
+    color: #A9BAFF;
+    border: 1px solid rgba(67, 97, 238, 0.25);
+    border-radius: 9px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Register heading */
+.attendance-register-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(120, 160, 220, 0.15);
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+}
+
+.attendance-register-heading h5 {
+    color: #F8FAFC;
+    margin-bottom: 6px;
+}
+
+.attendance-register-heading p {
+    color: #A7B6CC;
+    margin-bottom: 0;
+}
+
+.attendance-register-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+    background: rgba(67, 97, 238, 0.18);
+    color: #8198FF;
+    font-size: 23px;
+}
+
+/* Inputs */
+.attendance-controls .form-label {
+    color: #C5D3E8;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.attendance-input,
+.attendance-search .form-control,
+.attendance-search .input-group-text {
+    background: #0F1D32;
+    border: 1px solid #344A69;
+    color: #F8FAFC;
+}
+
+.attendance-input:focus,
+.attendance-search .form-control:focus {
+    background: #0F1D32;
+    border-color: #6582FF;
+    color: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.16);
+}
+
+.attendance-input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+.attendance-search .input-group-text {
+    color: #8198FF;
+}
+
+.attendance-search .form-control::placeholder {
+    color: #778BA8;
+}
+
+/* Summary */
+.attendance-summary-dark {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    background: #0F1D32;
+    border: 1px solid rgba(120, 160, 220, 0.13);
+    border-radius: 14px;
+    padding: 18px;
+}
+
+.attendance-summary-dark .attendance-summary-item {
+    flex: 1;
+    min-width: 130px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.attendance-summary-dark small {
+    display: block;
+    color: #91A4BF;
+    font-size: 12px;
+}
+
+.attendance-summary-dark strong {
+    display: block;
+    color: #FFFFFF;
+    font-size: 20px;
+}
+
+.attendance-summary-dark .summary-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.attendance-summary-dark .summary-dot.total {
+    background: #8198FF;
+}
+
+.attendance-summary-dark .summary-dot.present {
+    background: #20C997;
+}
+
+.attendance-summary-dark .summary-dot.absent {
+    background: #F16D7A;
+}
+
+/* Table */
+.attendance-table-wrapper {
+    border: 1px solid rgba(120, 160, 220, 0.15);
+    border-radius: 13px;
+}
+
+.attendance-table-dark {
+    margin-bottom: 0;
+    color: #DCE6F5;
+    --bs-table-bg: transparent;
+    --bs-table-color: #DCE6F5;
+    --bs-table-border-color: rgba(120, 160, 220, 0.12);
+}
+
+.attendance-table-dark thead th {
+    background: #203552;
+    color: #B9CAEA;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    padding: 16px;
+    white-space: nowrap;
+    border-bottom: 1px solid #344A69;
+}
+
+.attendance-table-dark tbody td {
+    background: #162640;
+    color: #DCE6F5;
+    padding: 15px 16px;
+    border-color: rgba(120, 160, 220, 0.12);
+}
+
+.attendance-table-dark tbody tr:hover td {
+    background: #1D3352;
+}
+
+.attendance-table-dark tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.attendance-number,
+.attendance-username {
+    color: #91A4BF !important;
+    font-size: 13px;
+}
+
+.student-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #F8FAFC;
+}
+
+.student-avatar {
+    background: linear-gradient(135deg, #4361EE, #7209B7);
+    color: white;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* Present and absent controls */
+.attendance-options {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.attendance-option {
+    cursor: pointer;
+}
+
+.attendance-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.attendance-option span {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    transition: 0.2s ease;
+}
+
+.present-option span {
+    background: rgba(32, 201, 151, 0.1);
+    border-color: rgba(32, 201, 151, 0.25);
+    color: #54DDB5;
+}
+
+.absent-option span {
+    background: rgba(241, 109, 122, 0.1);
+    border-color: rgba(241, 109, 122, 0.25);
+    color: #FF929B;
+}
+
+.present-option input:checked + span {
+    background: rgba(32, 201, 151, 0.23);
+    border-color: #20C997;
+    box-shadow: 0 0 0 2px rgba(32, 201, 151, 0.12);
+}
+
+.absent-option input:checked + span {
+    background: rgba(241, 109, 122, 0.23);
+    border-color: #F16D7A;
+    box-shadow: 0 0 0 2px rgba(241, 109, 122, 0.12);
+}
+
+.attendance-option:focus-within span {
+    outline: 2px solid #8198FF;
+    outline-offset: 3px;
+}
+
+/* Footer and save button */
+.attendance-form-footer {
+    border-top: 1px solid rgba(120, 160, 220, 0.15);
+    padding-top: 20px;
+}
+
+.attendance-save-btn {
+    background: #4361EE;
+    border: 1px solid #4361EE;
+    color: white;
+    padding: 11px 22px;
+    font-weight: 600;
+    border-radius: 9px;
+    transition: 0.2s ease;
+}
+
+.attendance-save-btn:hover {
+    background: #3451D1;
+    border-color: #3451D1;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .attendance-page-intro,
+    .attendance-course-card,
+    .attendance-register-card {
+        padding: 18px;
+    }
+
+    .attendance-page-intro {
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .attendance-summary-dark {
+        gap: 18px;
+    }
+
+    .attendance-summary-dark .attendance-summary-item {
+        min-width: 40%;
+    }
+
+    .attendance-table-dark thead th,
+    .attendance-table-dark tbody td {
+        padding: 12px;
+    }
+}
+
+/* ---- LECTURER REPORT - DARK FUTURISTIC THEME ---- */
+.report-page-intro {
+    background: linear-gradient(120deg, #142440, #1B2D4D);
+    border: 1px solid rgba(120, 160, 220, 0.16);
+    border-radius: 18px;
+    padding: 24px;
+}
+
+.report-page-intro h4,
+.report-course-card h4 {
+    color: #F8FAFC;
+}
+
+.report-page-intro p,
+.report-muted {
+    color: #A7B6CC !important;
+}
+
+.report-eyebrow {
+    display: inline-block;
+    color: #8198FF;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin-bottom: 9px;
+}
+
+/* Navigation and export buttons */
+.report-back-btn {
+    border: 1px solid #526A8C;
+    color: #D5E1F2;
+}
+
+.report-back-btn:hover {
+    background: rgba(67, 97, 238, 0.15);
+    border-color: #8198FF;
+    color: #FFFFFF;
+}
+
+.report-export-btn {
+    background: #4361EE;
+    border: 1px solid #4361EE;
+    color: #FFFFFF;
+    padding: 11px 20px;
+    font-weight: 600;
+    border-radius: 9px;
+    transition: 0.2s ease;
+}
+
+.report-export-btn:hover {
+    background: #3451D1;
+    border-color: #3451D1;
+    color: #FFFFFF;
+    transform: translateY(-2px);
+}
+
+/* Course information */
+.report-course-card,
+.report-performance-card {
+    background: #162640;
+    border: 1px solid rgba(120, 160, 220, 0.15);
+    border-radius: 18px;
+    padding: 25px;
+    color: #F8FAFC;
+}
+
+.report-course-code {
+    display: inline-block;
+    background: rgba(67, 97, 238, 0.2);
+    color: #A9BAFF;
+    border: 1px solid rgba(67, 97, 238, 0.25);
+    border-radius: 7px;
+    padding: 6px 11px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* Summary cards */
+.report-stat-card {
+    background: #162640;
+    border: 1px solid rgba(120, 160, 220, 0.15);
+    border-radius: 16px;
+    color: #F8FAFC;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.report-stat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(67, 97, 238, 0.55);
+}
+
+.report-stat-card .stat-details span {
+    color: #A7B6CC;
+}
+
+.report-stat-card .stat-details h3 {
+    color: #FFFFFF;
+}
+
+.report-stat-card .stat-icon.primary {
+    background: rgba(67, 97, 238, 0.2);
+    color: #8198FF;
+}
+
+.report-stat-card .stat-icon.success {
+    background: rgba(32, 201, 151, 0.15);
+    color: #54DDB5;
+}
+
+.report-stat-card .stat-icon.warning {
+    background: rgba(255, 193, 7, 0.15);
+    color: #FFD36A;
+}
+
+/* Performance heading */
+.report-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(120, 160, 220, 0.15);
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+}
+
+.report-heading h5 {
+    color: #F8FAFC;
+}
+
+.report-heading p {
+    color: #A7B6CC;
+    margin-bottom: 0;
+}
+
+.report-heading-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+    background: rgba(67, 97, 238, 0.18);
+    color: #8198FF;
+    font-size: 23px;
+}
+
+/* Performance table */
+.report-table-wrapper {
+    border: 1px solid rgba(120, 160, 220, 0.15);
+    border-radius: 13px;
+}
+
+.report-table {
+    margin-bottom: 0;
+    color: #DCE6F5;
+    --bs-table-bg: transparent;
+    --bs-table-color: #DCE6F5;
+    --bs-table-border-color: rgba(120, 160, 220, 0.12);
+}
+
+.report-table thead th {
+    background: #203552;
+    color: #B9CAEA;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    padding: 16px;
+    white-space: nowrap;
+    border-bottom: 1px solid #344A69;
+}
+
+.report-table tbody td {
+    background: #162640;
+    color: #DCE6F5;
+    padding: 15px 16px;
+    border-color: rgba(120, 160, 220, 0.12);
+}
+
+.report-table tbody tr:hover td {
+    background: #1D3352;
+}
+
+.report-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.report-student-name {
+    color: #F8FAFC;
+}
+
+.report-username,
+.report-number {
+    color: #91A4BF !important;
+    font-size: 13px;
+}
+
+.report-percentage {
+    color: #F8FAFC;
+    font-size: 14px;
+}
+
+.report-progress {
+    height: 7px;
+    min-width: 90px;
+    background: #30425C;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.report-progress .progress-bar {
+    border-radius: 20px;
+}
+
+/* Performance status badges */
+.report-status {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    border-radius: 7px;
+    padding: 7px 10px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.status-good {
+    background: rgba(32, 201, 151, 0.13);
+    color: #54DDB5;
+    border: 1px solid rgba(32, 201, 151, 0.25);
+}
+
+.status-risk {
+    background: rgba(241, 109, 122, 0.13);
+    color: #FF929B;
+    border: 1px solid rgba(241, 109, 122, 0.25);
+}
+
+.status-none {
+    background: rgba(145, 164, 191, 0.12);
+    color: #B4C2D5;
+    border: 1px solid rgba(145, 164, 191, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .report-page-intro,
+    .report-course-card,
+    .report-performance-card {
+        padding: 18px;
+    }
+
+    .report-table thead th,
+    .report-table tbody td {
+        padding: 12px;
+    }
+}
+
+/* ---- STUDENT DASHBOARD - MIDNIGHT TEAL THEME ---- */
+body:has(.student-dashboard) {
+    background: #0B1D26;
+}
+
+/* Welcome section */
+.student-dashboard .student-welcome {
+    background: linear-gradient(120deg, #102B35, #174653);
+    border: 1px solid rgba(74, 194, 174, 0.18);
+    border-radius: 18px;
+    padding: 25px;
+    color: #F0FAF8;
+}
+
+.student-dashboard .student-welcome h4 {
+    color: #F0FAF8;
+}
+
+.student-dashboard .student-welcome p {
+    color: #A8C4C5;
+}
+
+.student-eyebrow {
+    display: inline-block;
+    color: #55D6BE;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin-bottom: 9px;
+}
+
+.student-portal-badge {
+    display: inline-block;
+    background: rgba(85, 214, 190, 0.12);
+    border: 1px solid rgba(85, 214, 190, 0.25);
+    color: #82E5D1;
+    border-radius: 9px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Summary cards */
+.student-dashboard .student-stat-card {
+    background: #142D37;
+    border: 1px solid rgba(85, 214, 190, 0.13);
+    border-radius: 16px;
+    color: #F0FAF8;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+    transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.student-dashboard .student-stat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(85, 214, 190, 0.45);
+}
+
+.student-dashboard .student-stat-card .stat-details span {
+    color: #A8C4C5;
+}
+
+.student-dashboard .student-stat-card .stat-details h3 {
+    color: #F0FAF8;
+}
+
+.student-stat-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+    font-size: 21px;
+}
+
+.student-icon-teal {
+    background: rgba(32, 191, 169, 0.15);
+    color: #55D6BE;
+}
+
+.student-icon-mint {
+    background: rgba(164, 230, 213, 0.13);
+    color: #A4E6D5;
+}
+
+.student-icon-gold {
+    background: rgba(224, 184, 120, 0.14);
+    color: #E0B878;
+}
+
+/* Main sections */
+.student-dashboard .student-section-card {
+    background: #112832;
+    border: 1px solid rgba(85, 214, 190, 0.13);
+    border-radius: 18px;
+    padding: 25px;
+    color: #F0FAF8;
+}
+
+.student-dashboard .student-section-heading {
+    border-bottom: 1px solid rgba(85, 214, 190, 0.13);
+    padding-bottom: 19px;
+    margin-bottom: 24px;
+}
+
+.student-dashboard .student-section-heading h5 {
+    color: #F0FAF8;
+}
+
+.student-dashboard .student-section-heading p {
+    color: #A8C4C5;
+    margin-bottom: 0;
+}
+
+/* Course cards */
+.student-course-card {
+    height: 100%;
+    background: linear-gradient(145deg, #193944, #142F39);
+    border: 1px solid rgba(85, 214, 190, 0.16);
+    border-radius: 16px;
+    padding: 22px;
+    color: #F0FAF8;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.student-course-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(85, 214, 190, 0.45);
+}
+
+.student-course-card h5 {
+    color: #F0FAF8;
+}
+
+.student-course-code {
+    display: inline-block;
+    background: rgba(32, 191, 169, 0.14);
+    border: 1px solid rgba(85, 214, 190, 0.2);
+    border-radius: 7px;
+    color: #76E0CA;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.student-secondary-text {
+    color: #A8C4C5 !important;
+}
+
+/* Status badges */
+.student-status {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    border-radius: 7px;
+    padding: 7px 10px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.status-good {
+    background: rgba(32, 191, 169, 0.13);
+    border: 1px solid rgba(85, 214, 190, 0.25);
+    color: #76E0CA;
+}
+
+.status-risk {
+    background: rgba(230, 117, 112, 0.13);
+    border: 1px solid rgba(230, 117, 112, 0.25);
+    color: #F29A94;
+}
+
+.status-no-records {
+    background: rgba(160, 181, 184, 0.12);
+    border: 1px solid rgba(160, 181, 184, 0.2);
+    color: #B5C8C9;
+}
+
+/* Attendance progress */
+.student-performance {
+    background: rgba(7, 25, 33, 0.35);
+    border: 1px solid rgba(85, 214, 190, 0.1);
+    border-radius: 11px;
+    padding: 14px;
+}
+
+.student-performance strong {
+    color: #8CE6D4;
+}
+
+.student-progress {
+    height: 8px;
+    background: #29434B;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.student-progress .progress-bar {
+    border-radius: 20px;
+}
+
+.student-progress-good {
+    background: linear-gradient(90deg, #20BFA9, #8CE6D4);
+}
+
+.student-progress-warning {
+    background: linear-gradient(90deg, #C89A52, #E0B878);
+}
+
+.student-progress-risk {
+    background: linear-gradient(90deg, #C65F62, #F29A94);
+}
+
+/* Attendance details */
+.student-dashboard .student-course-details {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    background: rgba(7, 25, 33, 0.3);
+    border: 1px solid rgba(85, 214, 190, 0.1);
+    border-radius: 10px;
+    padding: 14px;
+}
+
+.student-dashboard .student-course-details > div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.student-dashboard .student-course-details small {
+    color: #A8C4C5;
+    font-size: 11px;
+}
+
+.student-dashboard .student-course-details strong {
+    color: #F0FAF8;
+    font-size: 17px;
+}
+
+/* Projected attendance insight */
+.student-dashboard .student-insight {
+    display: flex;
+    align-items: flex-start;
+    background: rgba(224, 184, 120, 0.09);
+    border: 1px solid rgba(224, 184, 120, 0.2);
+    border-radius: 10px;
+    padding: 12px;
+    color: #E0C18F;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.student-dashboard .student-insight i {
+    color: #E0B878;
+    flex-shrink: 0;
+}
+
+/* Attendance history */
+.student-history-wrapper {
+    border: 1px solid rgba(85, 214, 190, 0.14);
+    border-radius: 13px;
+}
+
+.student-history-table {
+    margin-bottom: 0;
+    color: #E0EFEC;
+    --bs-table-bg: transparent;
+    --bs-table-color: #E0EFEC;
+    --bs-table-border-color: rgba(85, 214, 190, 0.12);
+}
+
+.student-history-table thead th {
+    background: #1B3B45;
+    color: #A8D5CB;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    padding: 16px;
+    white-space: nowrap;
+    border-bottom: 1px solid #31535A;
+}
+
+.student-history-table tbody td {
+    background: #142D37;
+    color: #C9DCDA;
+    padding: 15px 16px;
+    border-color: rgba(85, 214, 190, 0.1);
+}
+
+.student-history-table tbody tr:hover td {
+    background: #1B3B45;
+}
+
+.student-history-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.student-history-course {
+    color: #F0FAF8 !important;
+}
+
+/* Empty state */
+.student-dashboard .student-empty-state {
+    background: #142D37;
+    border: 1px dashed #42636A;
+    border-radius: 14px;
+    color: #A8C4C5;
+}
+
+.student-dashboard .student-empty-state h5 {
+    color: #F0FAF8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .student-dashboard .student-welcome,
+    .student-dashboard .student-section-card {
+        padding: 18px;
+    }
+
+    .student-course-card {
+        padding: 18px;
+    }
+
+    .student-dashboard .student-course-details {
+        flex-wrap: wrap;
+    }
+
+    .student-dashboard .student-course-details > div {
+        min-width: 28%;
+    }
+
+    .student-history-table thead th,
+    .student-history-table tbody td {
+        padding: 12px;
+    }
+}
+
+/* ---- ADMIN PORTAL — GRAPHITE & AMBER THEME ---- */
+body:has(.admin-dashboard) {
+    background: #111820;
+    color: #E8EDF2;
+}
+
+/* Main dashboard wrapper */
+.admin-dashboard {
+    color: #E8EDF2;
+}
+
+/* Page introduction */
+.admin-dashboard .page-intro {
+    background: linear-gradient(120deg, #202D39, #303B46);
+    border: 1px solid #3B4854;
+    border-radius: 18px;
+    padding: 25px;
+    color: #F8FAFC;
+}
+
+.admin-dashboard .page-intro h4 {
+    color: #F8FAFC;
+}
+
+.admin-dashboard .page-intro p {
+    color: #B5C0CA !important;
+}
+
+.admin-dashboard .page-intro .badge {
+    background: rgba(230, 162, 60, 0.15) !important;
+    color: #F0B653 !important;
+}
+
+/* Statistics */
+.admin-dashboard .stat-card {
+    background: #202D39;
+    border: 1px solid #354452;
+    border-radius: 16px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
+}
+
+.admin-dashboard .stat-details span {
+    color: #AEBAC5;
+}
+
+.admin-dashboard .stat-details h3 {
+    color: #F8FAFC;
+}
+
+.admin-dashboard .stat-icon {
+    background: rgba(230, 162, 60, 0.13);
+    color: #E6A23C;
+}
+
+/* Main content cards */
+.admin-dashboard .content-card {
+    background: #202D39;
+    border: 1px solid #354452;
+    border-radius: 16px;
+    color: #E8EDF2;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+}
+
+.admin-dashboard .card-heading h5,
+.admin-dashboard h5,
+.admin-dashboard h6 {
+    color: #F1F5F9;
+}
+
+.admin-dashboard .card-heading p,
+.admin-dashboard .text-muted {
+    color: #AAB6C1 !important;
+}
+
+/* Course analytics */
+.admin-dashboard .border.rounded-3 {
+    border-color: #3B4A56 !important;
+    background: #182630;
+}
+
+.admin-dashboard .progress {
+    background: #34434E;
+}
+
+.admin-dashboard .progress-bar {
+    background: linear-gradient(90deg, #D89432, #F2BD63);
+}
+
+.admin-dashboard .bg-light {
+    background: #293945 !important;
+}
+
+.admin-dashboard .bg-danger-subtle {
+    background: rgba(228, 119, 85, 0.13) !important;
+}
+
+.admin-dashboard .bg-success-subtle {
+    background: rgba(74, 164, 125, 0.14) !important;
+}
+
+.admin-dashboard .bg-primary-subtle {
+    background: rgba(230, 162, 60, 0.15) !important;
+}
+
+.admin-dashboard .text-primary {
+    color: #F0B653 !important;
+}
+
+.admin-dashboard .text-success {
+    color: #78C9A4 !important;
+}
+
+.admin-dashboard .text-danger {
+    color: #EF927B !important;
+}
+
+/* Forms */
+.admin-dashboard .form-control,
+.admin-dashboard .form-select {
+    background-color: #17232D;
+    border: 1px solid #43515D;
+    color: #F1F5F9;
+    border-radius: 9px;
+}
+
+.admin-dashboard .form-control::placeholder {
+    color: #8795A1;
+}
+
+.admin-dashboard .form-control:focus,
+.admin-dashboard .form-select:focus {
+    background-color: #17232D;
+    border-color: #E6A23C;
+    color: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(230, 162, 60, 0.13);
+}
+
+.admin-dashboard .form-select option {
+    background: #202D39;
+    color: #F1F5F9;
+}
+
+.admin-dashboard .form-label {
+    color: #D5DDE5;
+    font-weight: 500;
+}
+
+/* Primary buttons */
+.admin-dashboard .btn-primary {
+    background: #D99432;
+    border-color: #D99432;
+    color: #17202A;
+    font-weight: 600;
+}
+
+.admin-dashboard .btn-primary:hover {
+    background: #F0B653;
+    border-color: #F0B653;
+    color: #111820;
+}
+
+/* Tables */
+.admin-dashboard .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: #DCE4EB;
+    --bs-table-border-color: #354452;
+    --bs-table-hover-bg: #293945;
+    --bs-table-hover-color: #FFFFFF;
+    margin-bottom: 0;
+}
+
+.admin-dashboard .table thead th {
+    background: #182630;
+    color: #E6A23C;
+    border-bottom: 1px solid #43515D;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.admin-dashboard .table td {
+    color: #DCE4EB;
+    vertical-align: middle;
+}
+
+.admin-dashboard .table tbody tr:hover {
+    background: #293945;
+}
+
+/* Delete buttons */
+.admin-dashboard .btn-outline-danger {
+    border-color: #B96858;
+    color: #E58C7B;
+}
+
+.admin-dashboard .btn-outline-danger:hover {
+    background: #B96858;
+    color: #FFFFFF;
+}
+
+/* Responsive spacing */
+@media (max-width: 576px) {
+    .admin-dashboard .page-intro {
+        padding: 19px;
+    }
+
+    .admin-dashboard .content-card {
+        border-radius: 13px;
+    }
+}
