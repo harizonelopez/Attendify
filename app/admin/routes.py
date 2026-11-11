@@ -34,6 +34,31 @@ def dashboard():
     )
 
 
+@admin.route("/audit-logs")
+@role_required("admin")
+def audit_logs():
+    logs = q(
+        """
+        SELECT
+            id,
+            user_id,
+            username,
+            full_name,
+            role,
+            action,
+            entity_type,
+            entity_id,
+            details,
+            created_at
+        FROM audit_logs
+        ORDER BY created_at DESC, id DESC
+        LIMIT 200
+        """
+    )
+
+    return render_template("admin/audit_logs.html", logs=logs)
+
+
 @admin.route("/create-user", methods=["POST"])
 @role_required("admin")
 def create_user():
