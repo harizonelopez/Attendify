@@ -26,7 +26,6 @@ def dashboard():
         """,
         (lecturer_id,)
     )
-
     return render_template("lecturer/dashboard.html", courses=courses)
 
 
@@ -58,41 +57,65 @@ def mark_attendance(cid):
     )
 
     today = date.today().isoformat()
-
     if request.method == "POST":
         attendance_date = request.form.get("date", "").strip()
-        # Validate attendance date
+        # Only allow today's attendance
         try:
-            date.fromisoformat(attendance_date)
+            submitted_date = date.fromisoformat(attendance_date)
         except ValueError:
-            flash("Valid date required .", "danger")
-            return redirect(
-                url_for("lecturer.mark_attendance", cid=cid)
-            )
+            flash("A valid attendance date is required.", "danger")
+            return redirect(url_for("lecturer.mark_attendance", cid=cid))
 
-        # Ensure every student has an explicit selection
+        if submitted_date != date.today():
+            flash("Attendance can only be recorded for today.", "warning")
+            return redirect(url_for("lecturer.mark_attendance", cid=cid))
+
+        connection = db()
+
+        # Identify students whose attendance is already recorded
+        existing_records = connection.execute(
+            """
+            SELECT student_id
+            FROM attendance
+            WHERE course_id = ? AND date = ?
+            """,
+            (cid, today)
+        ).fetchall()
+
+        marked_students = {
+            record["student_id"] for record in existing_records
+        }
+
+        # Select only unmarked students who were actually submitted
+        pending_students = []
+
         for student in students:
+            if student["id"] in marked_students:
+                continue
+
             selection = request.form.get(
                 f"student_{student['id']}"
             )
 
-            if selection not in ("present", "absent"):
-                flash("Mark every student as either present or absent.", "warning")
-                return redirect(
-                    url_for("lecturer.mark_attendance", cid=cid)
-                )
+            if selection in ("present", "absent"):
+                pending_students.append(student)
 
-        connection = db()
+        # Require at least one student to be selected
+        if not pending_students:
+            flash("Select at least one unmarked student.", "warning")
+            return redirect(url_for("lecturer.mark_attendance", cid=cid))
+
         present_count = 0
         absent_count = 0
+        marked_names = []
 
         try:
-            for student in students:
-                present = (
-                    1 if request.form.get(
-                        f"student_{student['id']}"
-                    ) == "present" else 0
+            for student in pending_students:
+                selection = request.form.get(
+                    f"student_{student['id']}"
                 )
+
+                present = 1 if selection == "present" else 0
 
                 if present:
                     present_count += 1
@@ -104,20 +127,26 @@ def mark_attendance(cid):
                     INSERT INTO attendance
                         (course_id, student_id, date, present)
                     VALUES (?, ?, ?, ?)
-                    ON CONFLICT(course_id, student_id, date)
-                    DO UPDATE SET present = excluded.present
                     """,
-                    (cid, student["id"], attendance_date, present)
+                    (cid, student["id"], today, present)
                 )
 
+                marked_names.append(student["full_name"])
             connection.commit()
 
         except Exception:
             connection.rollback()
-            flash("An error occurred while saving the attendance.", "danger")
+            current_app.logger.exception(
+                "Failed to save attendance."
+            )
+
+            flash(
+                "An error occurred while saving attendance. "
+                "Please try again.",
+                "danger"
+            )
 
         else:
-            # Record the successful attendance operation
             try:
                 log_action(
                     action="mark_attendance",
@@ -125,27 +154,63 @@ def mark_attendance(cid):
                     entity_id=cid,
                     details=(
                         f"Attendance recorded for {course['code']} "
-                        f"on {attendance_date}. "
+                        f"on {today}. "
+                        f"Students: {', '.join(marked_names)}. "
                         f"Present: {present_count}, "
                         f"Absent: {absent_count}."
                     )
                 )
 
-                flash("Attendance successfully saved.", "success")
+                flash(
+                    f"Attendance taken for: {', '.join(marked_names)}.",
+                    "success"
+                )
 
             except Exception:
-                current_app.logger.exception("Failed to record attendance audit log.")
-                flash("Attendance was saved, but its audit record couldn't be created.", "warning")
+                current_app.logger.exception(
+                    "Failed to record attendance audit log."
+                )
+
+                flash(
+                    f"Attendance was saved for: "
+                    f"{', '.join(marked_names)}, "
+                    "but its audit record couldn't be created.",
+                    "warning"
+                )
 
         return redirect(
             url_for("lecturer.mark_attendance", cid=cid)
         )
 
+    # Load today's attendance records
+    attendance_records = q(
+        """
+        SELECT student_id, present
+        FROM attendance
+        WHERE course_id = ? AND date = ?
+        """,
+        (cid, today)
+    )
+
+    attendance_status = {
+        record["student_id"]: (
+            "Present" if record["present"] else "Absent"
+        )
+        for record in attendance_records
+    }
+
+    attendance_locked = (
+        len(attendance_status) == len(students)
+        and len(students) > 0
+    )
+
     return render_template(
         "lecturer/mark_attendance.html",
         course=course,
         students=students,
-        today=today
+        today=today,
+        attendance_status=attendance_status,
+        attendance_locked=attendance_locked
     )
 
 
