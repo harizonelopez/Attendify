@@ -3666,4 +3666,90 @@ body:has(.admin-dashboard) {
     color: #FFFFFF;
 }
 
+/* Attendance confirmation top bar */
+.attendance-confirm-bar {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(92%, 650px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 16px 20px;
+    background: #202D39;
+    border: 1px solid rgba(230, 162, 60, 0.45);
+    border-radius: 12px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+    color: #E8EDF2;
+    animation: attendanceConfirmIn 0.25s ease-out;
+}
+
+.attendance-confirm-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.attendance-confirm-message i {
+    color: #E6A23C;
+    font-size: 20px;
+}
+
+.attendance-confirm-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.attendance-confirm-actions button {
+    border: 0;
+    border-radius: 7px;
+    padding: 9px 15px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.attendance-confirm-cancel {
+    background: #354453;
+    color: #FFFFFF;
+}
+
+.attendance-confirm-yes {
+    background: #E6A23C;
+    color: #18212A;
+}
+
+.attendance-confirm-actions button:hover {
+    filter: brightness(1.1);
+}
+
+@keyframes attendanceConfirmIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -15px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@media (max-width: 576px) {
+    .attendance-confirm-bar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .attendance-confirm-actions {
+        justify-content: flex-end;
+    }
+}
+
+
 
