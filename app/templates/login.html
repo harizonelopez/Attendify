@@ -3,6 +3,14 @@
 
 {% block auth_content %}
 <div class="login-wrapper">
+    <div class="login-background">
+        <div class="login-glow login-glow-one"></div>
+        <div class="login-glow login-glow-two"></div>
+        <div class="login-grid"></div>
+        <div class="login-orbit login-orbit-one"></div>
+        <div class="login-orbit login-orbit-two"></div>
+    </div>
+
     <div class="login-container">
         <div class="login-visual">
             <div class="login-brand">
@@ -10,8 +18,14 @@
                 <span>Attendify</span>
             </div>
             <div class="login-message">
-                <span class="login-tag">SMART ATTENDANCE MANAGEMENT</span>
-                <h1>Smarter attendance.<br>Better outcomes.</h1>
+                <span class="login-tag">
+                    <span class="status-dot"></span>
+                    SMART ATTENDANCE MANAGEMENT
+                </span>
+                <h1>Smarter attendance.<br>
+                    <span>Better outcomes.</span>
+                </h1>
+
                 <p>
                     A centralized platform for managing student attendance,
                     monitoring academic engagement and making informed decisions.
@@ -20,7 +34,7 @@
 
             <div class="login-visual-footer">
                 <i class="bi bi-shield-check"></i>
-                Secure University Access
+                 Secure University Access
             </div>
         </div>
 
@@ -47,7 +61,8 @@
                                 class="form-control"
                                 id="username"
                                 name="username"
-                                placeholder="Enter your username" required
+                                placeholder="Enter your username" 
+                                required
                                 autofocus>
                         </div>
                     </div>
@@ -61,11 +76,13 @@
                                 class="form-control"
                                 id="password"
                                 name="password"
-                                placeholder="Enter your password" required>
+                                placeholder="Enter your password"
+                                required>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary login-button">Sign In
+                    <button type="submit" class="btn btn-primary login-button">
+                        Sign In
                         <i class="bi bi-arrow-right"></i>
                     </button>
                 </form>
