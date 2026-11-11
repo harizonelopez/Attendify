@@ -61,15 +61,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 let absent = 0;
 
                 rows.forEach(function (row) {
-                    const selected = row.querySelector(
-                        'input[type="radio"]:checked'
-                    );
-
+                    const selected = row.querySelector('input[type="radio"]:checked');
                     if (selected) {
                         if (selected.value === "present") {
                             present++;
                         } else if (selected.value === "absent") {
                             absent++;
+                        }
+                    } else {
+                        const recordedStatus = row.querySelector(".badge");
+
+                        if (recordedStatus) {
+                            if (recordedStatus.classList.contains("bg-success")) {
+                                present++;
+                            } else if (recordedStatus.classList.contains("bg-danger")) {
+                                absent++;
+                            }
                         }
                     }
                 });
@@ -101,10 +108,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             }
 
-            // Validate attendance before submission.
+            // Validate only students whose attendance is still pending.
+            let attendanceConfirmed = false;
             attendanceForm.addEventListener("submit", function (event) {
+                if (attendanceConfirmed) return;
+
+                const pendingRows = Array.from(rows).filter(function (row) {
+                    return row.querySelector(".attendance-radio");
+                });
+
                 let unmarked = 0;
-                rows.forEach(function (row) {
+                pendingRows.forEach(function (row) {
                     const selected = row.querySelector(
                         'input[type="radio"]:checked'
                     );
@@ -112,19 +126,56 @@ document.addEventListener("DOMContentLoaded", function () {
                         unmarked++;
                     }
                 });
-                if (unmarked > 0) {
-                    event.preventDefault();
-                    alert(
-                        `Please assign an attendance status to all students. ${unmarked} student(s) remain unmarked.`
-                    );
 
+                const selectedCount = pendingRows.filter(function (row) {
+                    return row.querySelector('input[type="radio"]:checked');
+                }).length;
+
+                if (selectedCount === 0) {
+                    event.preventDefault();
+                    alert("At least one student has to be marked.");
                     return;
                 }
 
-                if (!confirm("Are you sure you want to save this attendance record?")) {
-                    event.preventDefault();
-                }
+                event.preventDefault();
+
+                // Display the custom top confirmation bar.
+                const existingBar = document.querySelector(".attendance-confirm-bar");
+                if (existingBar) existingBar.remove();
+
+                const confirmationBar = document.createElement("div");
+                confirmationBar.className = "attendance-confirm-bar";
+
+                confirmationBar.innerHTML = `
+                    <div class="attendance-confirm-message">
+                        <i class="bi bi-question-circle-fill"></i>
+                        <span>Are you sure you want to save the selected attendance records?</span>
+                    </div>
+                    <div class="attendance-confirm-actions">
+                        <button type="button" class="attendance-confirm-cancel">
+                            Cancel
+                        </button>
+                        <button type="button" class="attendance-confirm-yes">
+                            Confirm
+                        </button>
+                    </div>
+                `;
+
+                document.body.appendChild(confirmationBar);
+
+                confirmationBar.querySelector(".attendance-confirm-cancel")
+                    .addEventListener("click", function () {
+                        confirmationBar.remove();
+                    });
+
+                confirmationBar.querySelector(".attendance-confirm-yes")
+                    .addEventListener("click", function () {
+                        attendanceConfirmed = true;
+                        confirmationBar.remove();
+                        attendanceForm.submit();
+                    });
             });
+
 
             // Initialize attendance counters.
             updateAttendanceSummary();
