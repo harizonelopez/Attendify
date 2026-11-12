@@ -145,7 +145,34 @@ def audit_logs():
     except ValueError:
         pass
 
-    # Build the query using active filters.
+    # Build the WHERE clause using active filters.
+    where_clause = ""
+
+    if conditions:
+        where_clause = " WHERE " + " AND ".join(conditions)
+
+    # Count all records matching the filters.
+    count_sql = (
+        "SELECT COUNT(*) AS total FROM audit_logs"
+        + where_clause
+    )
+
+    count_result = q(count_sql, tuple(params), one=True)
+    total_records = count_result["total"]
+
+    # Pagination settings.
+    per_page = 20
+    total_pages = max(
+        1,
+        (total_records + per_page - 1) // per_page
+    )
+
+    page = request.args.get("page", 1, type=int) or 1
+    page = max(1, min(page, total_pages))
+
+    offset = (page - 1) * per_page
+
+    # Fetch only the records for the current page.
     sql = """
         SELECT
             id,
@@ -161,15 +188,14 @@ def audit_logs():
         FROM audit_logs
     """
 
-    if conditions:
-        sql += " WHERE " + " AND ".join(conditions)
+    sql += where_clause
 
     sql += """
         ORDER BY created_at DESC, id DESC
-        LIMIT 200
+        LIMIT ? OFFSET ?
     """
 
-    logs = q(sql, tuple(params))
+    logs = q(sql, tuple(params + [per_page, offset]))
 
     # Load available actions for the action filter.
     actions = q("""
@@ -178,20 +204,36 @@ def audit_logs():
         ORDER BY action ASC
     """)
 
-    # Convert UTC timestamps to Nairobi local time.
+    # Convert UTC timestamps to Nairobi local time(UTC+3).
     formatted_logs = []
 
     for log in logs:
         log_data = dict(log)
+
         utc_time = datetime.fromisoformat(
             log_data["created_at"]
         ).replace(tzinfo=utc_tz)
+
         log_data["local_time"] = utc_time.astimezone(
             nairobi_tz
         ).strftime("%d %b %Y, %I:%M:%S %p")
+
         formatted_logs.append(log_data)
 
-    return render_template("admin/audit_logs.html", logs=formatted_logs, filters=filters, actions=actions)
+    return render_template(
+        "admin/audit_logs.html",
+        logs=formatted_logs,
+        filters=filters,
+        actions=actions,
+        page=page,
+        per_page=per_page,
+        total_records=total_records,
+        total_pages=total_pages,
+        start_record=offset + 1 if total_records else 0,
+        end_record=min(offset + per_page, total_records),
+        has_previous=page > 1,
+        has_next=page < total_pages
+    )
 
 
 @admin.route("/create-user", methods=["POST"])
