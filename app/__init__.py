@@ -10,6 +10,10 @@ def create_app():
     # Load application configuration
     app.config.from_object(Config)
 
+    # Enable automatic template reloading without debug mode
+    app.config["TEMPLATES_AUTO_RELOAD"] = True
+    app.jinja_env.auto_reload = True
+
     # Initialize the application
     csrf = CSRFProtect()
     csrf.init_app(app)
