@@ -4,7 +4,7 @@ from app.auth.decorators import role_required
 from app.database.db import db, q
 from app.services.audit import log_action
 from app.services.analytics import course_statistics
-from datetime import datetime
+from datetime import datetime, date, time, timedelta
 from zoneinfo import ZoneInfo
 
 admin = Blueprint("admin", __name__, url_prefix="/admin")
@@ -72,8 +72,81 @@ def dashboard():
 @admin.route("/audit-logs")
 @role_required("admin")
 def audit_logs():
-    logs = q(
-        """
+    # Collect filter values from the URL.
+    search = request.args.get("search", "").strip()
+    role = request.args.get("role", "").strip()
+    action = request.args.get("action", "").strip()
+    date_from = request.args.get("date_from", "").strip()
+    date_to = request.args.get("date_to", "").strip()
+
+    filters = {
+        "search": search,
+        "role": role,
+        "action": action,
+        "date_from": date_from,
+        "date_to": date_to
+    }
+
+    conditions = []
+    params = []
+
+    # Search across user and activity information.
+    if search:
+        conditions.append("""
+            (
+                username LIKE ?
+                OR full_name LIKE ?
+                OR action LIKE ?
+                OR details LIKE ?
+            )
+        """)
+        term = f"%{search}%"
+        params.extend([term, term, term, term])
+
+    # Filter by role.
+    if role in ("admin", "lecturer", "student"):
+        conditions.append("role = ?")
+        params.append(role)
+
+    # Filter by action.
+    if action:
+        conditions.append("action = ?")
+        params.append(action)
+
+    # Interpret date filters using Kenya's local timezone.
+    nairobi_tz = ZoneInfo("Africa/Nairobi")
+    utc_tz = ZoneInfo("UTC")
+
+    try:
+        if date_from:
+            start_date = date.fromisoformat(date_from)
+            start_local = datetime.combine(
+                start_date, time.min, tzinfo=nairobi_tz
+            )
+            start_utc = start_local.astimezone(utc_tz)
+
+            conditions.append("created_at >= ?")
+            params.append(
+                start_utc.strftime("%Y-%m-%d %H:%M:%S")
+            )
+
+        if date_to:
+            end_date = date.fromisoformat(date_to) + timedelta(days=1)
+            end_local = datetime.combine(
+                end_date, time.min, tzinfo=nairobi_tz
+            )
+            end_utc = end_local.astimezone(utc_tz)
+
+            conditions.append("created_at < ?")
+            params.append(
+                end_utc.strftime("%Y-%m-%d %H:%M:%S")
+            )
+
+    except ValueError:
+        pass
+
+    # Build the query using active filters.
+    sql = """
         SELECT
             id,
             user_id,
@@ -86,26 +159,39 @@ def audit_logs():
             details,
             created_at
         FROM audit_logs
+    """
+
+    if conditions:
+        sql += " WHERE " + " AND ".join(conditions)
+
+    sql += """
         ORDER BY created_at DESC, id DESC
         LIMIT 200
-        """
-    )
+    """
 
-    nairobi_tz = ZoneInfo("Africa/Nairobi")
+    logs = q(sql, tuple(params))
+
+    # Load available actions for the action filter.
+    actions = q("""
+        SELECT DISTINCT action
+        FROM audit_logs
+        ORDER BY action ASC
+    """)
+
+    # Convert UTC timestamps to Nairobi local time.
     formatted_logs = []
 
     for log in logs:
         log_data = dict(log)
         utc_time = datetime.fromisoformat(
             log_data["created_at"]
-        ).replace(tzinfo=ZoneInfo("UTC"))
-
+        ).replace(tzinfo=utc_tz)
         log_data["local_time"] = utc_time.astimezone(
             nairobi_tz
         ).strftime("%d %b %Y, %I:%M:%S %p")
         formatted_logs.append(log_data)
 
-    return render_template("admin/audit_logs.html", logs=formatted_logs)
+    return render_template("admin/audit_logs.html", logs=formatted_logs, filters=filters, actions=actions)
 
 
 @admin.route("/create-user", methods=["POST"])
