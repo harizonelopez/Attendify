@@ -131,3 +131,4 @@ def change_password():
         return redirect(url_for("auth.login"))
 
     return render_template("change_password.html")
+
