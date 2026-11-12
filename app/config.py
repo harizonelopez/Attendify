@@ -16,20 +16,21 @@ class Config:
     if not SECRET_KEY:
         raise RuntimeError("SECRET_KEY is missing. Check your secrets.env file.")
 
+    # Session configuration
     PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+
+    # Enable source cookies only when HTTPS is configured
+    SESSION_COOKIE_SECURE = (
+        os.environ.get("SESSION_COOKIE_SECURE", "0") == "1"
+    )
     
     # Database configuration
-    DATABASE = os.path.join(
-        BASE_DIR,
-        "instance",
-        "attendance.db"
-    )
+    DATABASE = os.path.join(BASE_DIR, "instance", "attendance.db")
 
     # Application settings
-    DEBUG = os.environ.get(
-        "FLASK_DEBUG",
-        "1"
-    ) == "1"
+    DEBUG = os.environ.get("FLASK_DEBUG", "0") == "1"
 
     # Attendance analytics
     THRESHOLD = 75
