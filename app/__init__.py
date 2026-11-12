@@ -2,12 +2,17 @@ import os
 from flask import Flask, session, redirect, url_for
 from app.config import Config
 from app.database.db import close_db, init_db
+from flask_wtf import CSRFProtect
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
 
     # Load application configuration
     app.config.from_object(Config)
+
+    # Initialize the application
+    csrf = CSRFProtect()
+    csrf.init_app(app)
 
     # Ensure the instance directory exists
     os.makedirs(app.instance_path, exist_ok=True)
