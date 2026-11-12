@@ -19,16 +19,52 @@ document.addEventListener("DOMContentLoaded", function () {
             link.classList.add("active");
         }
     });
+        
+    // Custom confirmation for destructive actions.
+    document.querySelectorAll("form [data-confirm]").forEach(function (button) {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+            const form = button.closest("form");
+            if (!form) return;
 
-    // Confirm before performing destructive actions.
-    document.querySelectorAll("[data-confirm]").forEach(function (element) {
-        element.addEventListener("click", function (event) {
-            const message = element.dataset.confirm;
-            if (!confirm(message)) {
-                event.preventDefault();
-            }
+            // Prevent duplicate confirmation bars.
+            const existingBar = document.querySelector(".attendance-confirm-bar");
+            if (existingBar) existingBar.remove();
+
+            const message = button.dataset.confirm;
+            const confirmationBar = document.createElement("div");
+            confirmationBar.className = "attendance-confirm-bar";
+
+            confirmationBar.innerHTML = `
+                <div class="attendance-confirm-message">
+                    <i class="bi bi-question-circle-fill"></i>
+                    <span>${message}</span>
+                </div>
+                <div class="attendance-confirm-actions">
+                    <button type="button" class="attendance-confirm-cancel">
+                        Cancel
+                    </button>
+                    <button type="button" class="attendance-confirm-yes">
+                        Confirm
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(confirmationBar);
+
+            confirmationBar.querySelector(".attendance-confirm-cancel")
+                .addEventListener("click", function () {
+                    confirmationBar.remove();
+                });
+
+            confirmationBar.querySelector(".attendance-confirm-yes")
+                .addEventListener("click", function () {
+                    confirmationBar.remove();
+                    form.requestSubmit(button);
+                });
         });
     });
+
 
     // Search/filter table rows.
     document.querySelectorAll("[data-table-search]").forEach(function (input) {
