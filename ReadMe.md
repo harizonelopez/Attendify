@@ -184,7 +184,6 @@ For production deployment, configure a strong secret key, enable CSRF protection
 - Automated attendance notifications.
 - More advanced analytics and reporting.
 - Integration with institutional student information systems.
-- Deployment with a production database.
 
 ## Project Purpose
 
