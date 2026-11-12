@@ -34,6 +34,7 @@ def login():
             user["password_hash"], password
         ):
             session.clear()
+            session.permanent = True
             session["user_id"] = user["id"]
             session["username"] = user["username"]
             session["full_name"] = user["full_name"]
