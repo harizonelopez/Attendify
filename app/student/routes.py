@@ -3,7 +3,6 @@ from app.auth.decorators import role_required
 from app.database.db import q
 from app.services.analytics import analyse
 
-
 student = Blueprint("student", __name__, url_prefix="/student")
 
 @student.route("/")
@@ -35,7 +34,7 @@ def dashboard():
             ON attendance.course_id = courses.id
             AND attendance.student_id = enrollments.student_id
         WHERE enrollments.student_id = ?
-        GROUP BY courses.id
+        GROUP BY courses.id, users.full_name
         ORDER BY courses.code
         """,
         (student_id,)
