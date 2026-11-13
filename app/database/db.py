@@ -3,29 +3,56 @@ from datetime import date, timedelta
 from flask import g, current_app
 from werkzeug.security import generate_password_hash
 
+def is_postgres():
+    """Check whether PostgreSQL is configured."""
+    return bool(current_app.config.get("DATABASE_URL"))
+
+class DatabaseConnection:
+    """Keep database execution compatible across SQLite and PostgreSQL."""
+    def __init__(self, connection, postgres=False):
+        self.connection = connection
+        self.postgres = postgres
+
+    def execute(self, sql, args=()):
+        if self.postgres:
+            sql = sql.replace("?", "%s")
+        return self.connection.execute(sql, args)
+
+    def executemany(self, sql, args):
+        if self.postgres:
+            sql = sql.replace("?", "%s")
+        return self.connection.executemany(sql, args)
+
+    def __getattr__(self, name):
+        return getattr(self.connection, name)
+
+
 def db():
-    """Get one SQLite connection for the current request."""
+    """Get one database connection for the current request."""
     if "db" not in g:
-        g.db = sqlite3.connect(
-            current_app.config["DATABASE"]
-        )
-        g.db.row_factory = sqlite3.Row
+        if is_postgres():
+            import psycopg
+            from psycopg.rows import dict_row
+
+            connection = psycopg.connect(
+                current_app.config["DATABASE_URL"],
+                row_factory=dict_row
+            )
+
+            g.db = DatabaseConnection(
+                connection,
+                postgres=True
+            )
+
+        else:
+            connection = sqlite3.connect(
+                current_app.config["DATABASE"]
+            )
+
+            connection.row_factory = sqlite3.Row
+            g.db = DatabaseConnection(connection)
+
     return g.db
-
-
-def q(sql, args=(), one=False):
-    """Execute a SELECT query."""
-    rows = db().execute(sql, args).fetchall()
-    if one:
-        return rows[0] if rows else None
-    return rows
-
-
-def run(sql, args=()):
-    """Execute INSERT, UPDATE or DELETE queries."""
-    connection = db()
-    connection.execute(sql, args)
-    connection.commit()
 
 
 def close_db(error=None):
@@ -34,9 +61,28 @@ def close_db(error=None):
     if connection is not None:
         connection.close()
 
+def q(sql, args=(), one=False):
+    """Execute a SELECT query."""
+    rows = db().execute(sql, args).fetchall()
+    if one:
+        return rows[0] if rows else None
+    return rows
+
+def run(sql, args=()):
+    """Execute INSERT, UPDATE or DELETE queries."""
+    connection = db()
+    connection.execute(sql, args)
+    connection.commit()
 
 def init_db():
-    """Create database tables and insert initial demo data."""
+    """Initialize the configured database."""
+    if is_postgres():
+        init_postgres()
+    else:
+        init_sqlite()
+
+def init_sqlite():
+    """Initialize the SQLite database."""
     connection = sqlite3.connect(
         current_app.config["DATABASE"]
     )
@@ -50,17 +96,20 @@ def init_db():
                 password_hash TEXT,
                 role TEXT
             );
+
             CREATE TABLE IF NOT EXISTS courses (
                 id INTEGER PRIMARY KEY,
                 code TEXT,
                 name TEXT,
                 lecturer_id INTEGER
             );
+
             CREATE TABLE IF NOT EXISTS enrollments (
                 student_id INTEGER,
                 course_id INTEGER,
                 UNIQUE(student_id, course_id)
             );
+
             CREATE TABLE IF NOT EXISTS attendance (
                 course_id INTEGER,
                 student_id INTEGER,
@@ -68,6 +117,7 @@ def init_db():
                 present INTEGER,
                 UNIQUE(course_id, student_id, date)
             );
+
             CREATE TABLE IF NOT EXISTS audit_logs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER,
@@ -80,119 +130,192 @@ def init_db():
                 details TEXT,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
             );
+
             CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at
             ON audit_logs(created_at);
-        """
+            """
         )
-
-        # Seed demo accounts only when the database is empty.
-        if not connection.execute(
-            "SELECT 1 FROM users LIMIT 1"
-        ).fetchone():
-            def add_user(username, full_name, password, role):
-                cursor = connection.execute(
-                    """
-                    INSERT INTO users
-                    (username, full_name, password_hash, role)
-                    VALUES (?, ?, ?, ?)
-                    """,
-                    (
-                        username,
-                        full_name,
-                        generate_password_hash(password),
-                        role
-                    )
-                )
-                return cursor.lastrowid
-
-            admin_id = add_user(
-                "admin",
-                "System Admin",
-                "admin123",
-                "admin"
-            )
-            lecturer_id = add_user(
-                "lecturer1",
-                "Dr. Wanjiru",
-                "lecturer123",
-                "lecturer"
-            )
-            student1_id = add_user(
-                "student1",
-                "Brian Kamau",
-                "student123",
-                "student"
-            )
-            student2_id = add_user(
-                "student2",
-                "Grace Njeri",
-                "student123",
-                "student"
-            )
-
-            # Create a demonstration course.
-            cursor = connection.execute(
-                """
-                INSERT INTO courses (code, name, lecturer_id)
-                VALUES (?, ?, ?)
-                """,
-                (
-                    "CS101",
-                    "Intro to Programming",
-                    lecturer_id
-                )
-            )
-            course_id = cursor.lastrowid
-
-            # Enroll demonstration students.
-            connection.executemany(
-                """
-                INSERT INTO enrollments
-                (student_id, course_id)
-                VALUES (?, ?)
-                """,
-                [
-                    (student1_id, course_id),
-                    (student2_id, course_id)
-                ]
-            )
-
-            # Generate eight sample attendance sessions.
-            student1 = [1, 1, 1, 0, 1, 0, 0, 0]
-            student2 = [1, 1, 1, 1, 1, 1, 0, 1]
-            start = date.today() - timedelta(weeks=8)
-            for i in range(8):
-                attendance_date = (
-                    start + timedelta(weeks=i)
-                ).isoformat()
-                connection.execute(
-                    """
-                    INSERT INTO attendance
-                    (course_id, student_id, date, present)
-                    VALUES (?, ?, ?, ?)
-                    """,
-                    (
-                        course_id,
-                        student1_id,
-                        attendance_date,
-                        student1[i]
-                    )
-                )
-                connection.execute(
-                    """
-                    INSERT INTO attendance
-                    (course_id, student_id, date, present)
-                    VALUES (?, ?, ?, ?)
-                    """,
-                    (
-                        course_id,
-                        student2_id,
-                        attendance_date,
-                        student2[i]
-                    )
-                )
+        seed_demo_data(connection)
         connection.commit()
     finally:
         connection.close()
 
-        
+def init_postgres():
+    import psycopg
+    """Initialize the PostgreSQL database."""
+    with psycopg.connect(
+        current_app.config["DATABASE_URL"]
+    ) as connection:
+        schema = [
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                username TEXT UNIQUE,
+                full_name TEXT,
+                password_hash TEXT,
+                role TEXT
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS courses (
+                id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                code TEXT,
+                name TEXT,
+                lecturer_id INTEGER
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS enrollments (
+                student_id INTEGER,
+                course_id INTEGER,
+                UNIQUE(student_id, course_id)
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS attendance (
+                course_id INTEGER,
+                student_id INTEGER,
+                date TEXT,
+                present INTEGER,
+                UNIQUE(course_id, student_id, date)
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS audit_logs (
+                id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                user_id INTEGER,
+                username TEXT,
+                full_name TEXT,
+                role TEXT,
+                action TEXT NOT NULL,
+                entity_type TEXT,
+                entity_id INTEGER,
+                details TEXT,
+                created_at TEXT DEFAULT ((CURRENT_TIMESTAMP AT TIME ZONE 'UTC')::text)
+            )
+            """,
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at
+            ON audit_logs(created_at)
+            """
+        ]
+        for statement in schema:
+            connection.execute(statement)
+
+        # Demo data is only inserted when the database is empty.
+        if not connection.execute(
+            "SELECT 1 FROM users LIMIT 1"
+        ).fetchone():
+            # Production account creation will be handled separately.
+            pass
+
+def seed_demo_data(connection):
+    """Insert initial demo data into an empty SQLite database."""
+    if connection.execute(
+        "SELECT 1 FROM users LIMIT 1"
+    ).fetchone():
+        return
+
+    def add_user(username, full_name, password, role):
+        cursor = connection.execute(
+            """
+            INSERT INTO users
+            (username, full_name, password_hash, role)
+            VALUES (?, ?, ?, ?)
+            """,
+            (
+                username,
+                full_name,
+                generate_password_hash(password),
+                role
+            )
+        )
+        return cursor.lastrowid
+
+    admin_id = add_user(
+        "admin",
+        "System Admin",
+        "admin123",
+        "admin"
+    )
+    lecturer_id = add_user(
+        "lecturer1",
+        "Dr. Wanjiru",
+        "lecturer123",
+        "lecturer"
+    )
+    student1_id = add_user(
+        "student1",
+        "Brian Kamau",
+        "student123",
+        "student"
+    )
+    student2_id = add_user(
+        "student2",
+        "Grace Njeri",
+        "student123",
+        "student"
+    )
+    cursor = connection.execute(
+        """
+        INSERT INTO courses (code, name, lecturer_id)
+        VALUES (?, ?, ?)
+        """,
+        (
+            "CS101",
+            "Intro to Programming",
+            lecturer_id
+        )
+    )
+    course_id = cursor.lastrowid
+
+    connection.executemany(
+        """
+        INSERT INTO enrollments
+        (student_id, course_id)
+        VALUES (?, ?)
+        """,
+        [
+            (student1_id, course_id),
+            (student2_id, course_id)
+        ]
+    )
+
+    student1 = [1, 1, 1, 0, 1, 0, 0, 0]
+    student2 = [1, 1, 1, 1, 1, 1, 0, 1]
+
+    start = date.today() - timedelta(weeks=8)
+
+    for i in range(8):
+        attendance_date = (
+            start + timedelta(weeks=i)
+        ).isoformat()
+
+        connection.execute(
+            """
+            INSERT INTO attendance
+            (course_id, student_id, date, present)
+            VALUES (?, ?, ?, ?)
+            """,
+            (
+                course_id,
+                student1_id,
+                attendance_date,
+                student1[i]
+            )
+        )
+
+        connection.execute(
+            """
+            INSERT INTO attendance
+            (course_id, student_id, date, present)
+            VALUES (?, ?, ?, ?)
+            """,
+            (
+                course_id,
+                student2_id,
+                attendance_date,
+                student2[i]
+            )
+        )
+
