@@ -47,7 +47,6 @@ def dashboard():
             course_item["attended"],
             course_item["total"]
         )
-
         course_data.append(course_item)
 
     history = q(
