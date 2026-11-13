@@ -56,6 +56,7 @@ The system simplifies attendance tracking by allowing lecturers to record studen
 | Authentication     | Flask Sessions, Werkzeug Password Hashing |
 | Data Visualization | Chart.js                                  |
 | Report Export      | CSV                                       |
+| PostgreSQL (Neon)  | Production data storage                   |
 
 ## System Architecture
 
@@ -196,5 +197,13 @@ Attendify was developed as a practical software engineering project to demonstra
 - LinkedIn: [Harison Onyango](https://www.linkedin.com/in/harison-onyango-a267b625b/)
 
 ---
+
+## Live Demo
+
+Experience Attendify here:
+
+**[Attendify – Live Demo](https://attendify-h84s.onrender.com)**
+
+The application is deployed on Render and uses PostgreSQL (Neon) for production data storage.
 
 *Attendify – Simplifying University Attendance Management.*
