@@ -14,7 +14,7 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY")
 
     if not SECRET_KEY:
-        raise RuntimeError("SECRET_KEY is missing. Check your secrets.env file.")
+        raise RuntimeError("SECRET_KEY environment variable is missing.")
 
     # Session configuration
     PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
