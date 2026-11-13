@@ -271,11 +271,11 @@ def create_user():
             """
             INSERT INTO users (username, full_name, password_hash, role)
             VALUES (?, ?, ?, ?)
+            RETURNING id
             """,
             (username, full_name, generate_password_hash(password), role)
         )
-
-        user_id = cursor.lastrowid
+        user_id = cursor.fetchone()["id"]
         db().commit()
 
         log_action(
@@ -334,11 +334,11 @@ def create_course():
             """
             INSERT INTO courses (code, name, lecturer_id)
             VALUES (?, ?, ?)
+            RETURNING id
             """,
             (code, name, int(lecturer_id))
         )
-
-        course_id = cursor.lastrowid
+        course_id = cursor.fetchone()["id"]
         db().commit()
 
         log_action(
