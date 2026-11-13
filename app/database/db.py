@@ -26,7 +26,6 @@ class DatabaseConnection:
     def __getattr__(self, name):
         return getattr(self.connection, name)
 
-
 def db():
     """Get one database connection for the current request."""
     if "db" not in g:
@@ -38,7 +37,6 @@ def db():
                 current_app.config["DATABASE_URL"],
                 row_factory=dict_row
             )
-
             g.db = DatabaseConnection(
                 connection,
                 postgres=True
