@@ -29,6 +29,9 @@ class Config:
     # Database configuration
     DATABASE = os.path.join(BASE_DIR, "instance", "attendance.db")
 
+    # PostgreSQL connection URL(provided by Render in production)
+    DATABASE_URL = os.environ.get("DATABASE_URL")
+
     # Application settings
     DEBUG = os.environ.get("FLASK_DEBUG", "0") == "1"
 
